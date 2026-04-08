@@ -21,7 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Repositories\Posts\" />
+    <Folder Include="Repositories\Authors\WhenGetAuthorAsync\" />
+    <Folder Include="Repositories\Posts\WhenGetPostAsync\" />
   </ItemGroup>
 
   <ItemGroup>
