@@ -1,1 +1,1 @@
-# TechnicalTestVisma
+# TechnicalTest
