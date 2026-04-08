@@ -1,4 +1,4 @@
-namespace TechnicalTestVisma
+namespace TechnicalTest
 {
     public class WeatherForecast
     {

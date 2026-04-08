@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace TechnicalTestVisma.Controllers
+namespace TechnicalTest.Controllers
 {
     [ApiController]
     [Route("[controller]")]
