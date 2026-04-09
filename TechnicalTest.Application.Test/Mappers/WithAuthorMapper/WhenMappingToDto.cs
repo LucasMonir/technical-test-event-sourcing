@@ -28,5 +28,12 @@ namespace TechnicalTest.Application.Test.Mappers.WithAuthorMapper
             var result = AuthorMapper.MapToDto(_author);
             result.Should().BeEquivalentTo(_expected);
         }
+
+        [Fact]
+        public void ThenMustReturnNullWhenAuthorIsNull()
+        {
+            var result = AuthorMapper.MapToDto(null);
+            result.Should().BeNull();
+        }
     }
 }

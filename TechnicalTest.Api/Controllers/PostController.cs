@@ -14,7 +14,7 @@ namespace TechnicalTest.Api.Controllers
         private readonly IPostCommandHandler _commandHandler = commandHandler;
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(Guid id, bool includeAuthor = false)
+        public async Task<IActionResult> Post(Guid id, bool includeAuthor = false)
         {
             var post = await _queryService.GetPostAsync(id, includeAuthor);
             return Ok(post);
