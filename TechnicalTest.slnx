@@ -1,11 +1,13 @@
 <Solution>
+  <Folder Name="/App/">
+    <Project Path="TechnicalTest.Api/TechnicalTest.Api.csproj" />
+    <Project Path="TechnicalTest.Application/TechnicalTest.Application.csproj" Id="cc97c51a-a5e0-4eb6-98ba-d946158d8b64" />
+    <Project Path="TechnicalTest.Domain/TechnicalTest.Domain.csproj" Id="8ee8ee65-d672-45f6-8200-636d049b2263" />
+    <Project Path="TechnicalTest.Infrastructure/TechnicalTest.Infrastructure.Persistence.csproj" Id="8498ee97-d1d5-4084-ad91-f828678c2889" />
+  </Folder>
   <Folder Name="/Tests/">
     <Project Path="TechnicalTest.Application.Test/TechnicalTest.Application.Test.csproj" Id="22bc55ce-e2ae-43d9-81c3-31023633f160" />
     <Project Path="TechnicalTest.Infrastructure.Test/TechnicalTest.Infrastructure.Persistence.Test.csproj" Id="51022b4d-c1be-4e69-9c74-288f4bc7efe7" />
     <Project Path="TechnicalTest.TestHelpers/TechnicalTest.TestHelpers.csproj" Id="4cf6f907-ca2f-469b-987d-e64f43b6eec2" />
   </Folder>
-  <Project Path="TechnicalTest.Api/TechnicalTest.Api.csproj" />
-  <Project Path="TechnicalTest.Application/TechnicalTest.Application.csproj" Id="cc97c51a-a5e0-4eb6-98ba-d946158d8b64" />
-  <Project Path="TechnicalTest.Domain/TechnicalTest.Domain.csproj" Id="8ee8ee65-d672-45f6-8200-636d049b2263" />
-  <Project Path="TechnicalTest.Infrastructure/TechnicalTest.Infrastructure.Persistence.csproj" Id="8498ee97-d1d5-4084-ad91-f828678c2889" />
 </Solution>
