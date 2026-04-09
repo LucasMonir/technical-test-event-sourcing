@@ -1,5 +1,7 @@
 ﻿using TechnicalTest.Application.Abstractions.Repositories;
 using TechnicalTest.Application.Abstractions.Services;
+using TechnicalTest.Application.DTOs;
+using TechnicalTest.Application.Mappers;
 using TechnicalTest.Domain;
 
 namespace TechnicalTest.Application.Services
@@ -8,9 +10,11 @@ namespace TechnicalTest.Application.Services
     {
         private readonly IPostRepository _postRepository = postRepository;
 
-        public async Task<Post?> GetPostAsync(Guid id)
+        public async Task<PostDto?> GetPostAsync(Guid id)
         {
-            return await _postRepository.GetPostAsync(id);
+            var post = await _postRepository.GetPostAsync(id);
+
+            return post is null ? null : PostMapper.MapToDto(post);
         }
 
         public Task<Post> CreatePostAsync(Post post)
