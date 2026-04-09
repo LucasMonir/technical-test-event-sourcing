@@ -10,10 +10,10 @@ namespace TechnicalTest.Infrastructure.Persistence.Repositories
 
         public async Task<Post> CreatePostAsync(Post post)
         {
-            await _dbContext.Posts.AddAsync(post);
+            var entry = await _dbContext.Posts.AddAsync(post);
             await _dbContext.SaveChangesAsync();
 
-            return post;
+            return entry.Entity;
         }
 
         public async Task<Post?> GetPostAsync(Guid id)

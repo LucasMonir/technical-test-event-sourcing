@@ -2,7 +2,7 @@
 using TechnicalTest.Application.DTOs;
 using TechnicalTest.Application.Mappers;
 using TechnicalTest.Domain;
-using TechnicalTest.TestHelpers.Builders;
+using TechnicalTest.TestHelpers.Builders.Domain;
 
 namespace TechnicalTest.Application.Test.Mappers.WhitPostMapper
 {
@@ -36,7 +36,7 @@ namespace TechnicalTest.Application.Test.Mappers.WhitPostMapper
         [Fact]
         public void ThenMustReturnExpectedDtoWithoutAuthorWhenNotIncluded()
         {
-            var result = PostMapper.MapToDto(_post, null);
+            var result = PostMapper.MapToDto(_post);
 
             result.Should().BeEquivalentTo(new PostDto(_post.Id,
                 _author.Id,

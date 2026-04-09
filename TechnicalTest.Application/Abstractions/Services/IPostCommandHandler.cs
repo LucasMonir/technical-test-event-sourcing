@@ -5,6 +5,6 @@ namespace TechnicalTest.Application.Abstractions.Services
 {
     public interface IPostCommandHandler
     {
-        Task<PostDto?> CreatePostAsync(CreatePostCommand command);
+        Task<PostDto?> Handle(CreatePostCommand command);
     }
 }

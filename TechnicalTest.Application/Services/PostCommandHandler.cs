@@ -13,21 +13,38 @@ namespace TechnicalTest.Application.Services
         private readonly IAuthorRepository _authorRepository = authorRepository;
         private readonly IPostRepository _postRepository = postRepository;
 
-        public async Task<PostDto?> CreatePostAsync(CreatePostCommand command)
+        public async Task<PostDto?> Handle(CreatePostCommand command)
         {
-            var author = await _authorRepository.GetPostAuthorAsync(command.AuthorId);
+            Author author = await GetAuthor(command);
 
-            var post = new Post()
-            {
-                Id = Guid.NewGuid(),
-                AuthorId = command.AuthorId,
-                Title = command.Title,
-                Description = command.Description,
-                Content = command.Content
-            };
+            var post = Post.Create(
+                author.Id,
+                command.Title,
+                command.Description,
+                command.Content
+            );
 
             await _postRepository.CreatePostAsync(post);
-            return PostMapper.MapToDto(post, author);
+            return PostMapper.MapToDto(post);
+        }
+
+        private async Task<Author> GetAuthor(CreatePostCommand command)
+        {
+            if (command.AuthorId.HasValue)
+            {
+                var author = await _authorRepository.GetPostAuthorAsync(command.AuthorId.Value);
+                if (author is not null) return author;
+            }
+
+            if (command.Author is not null)
+            {
+                return await _authorRepository.CreateAuthorAsync(Author.Create(
+                    command.Author?.Name ?? string.Empty,
+                    command.Author?.Surname ?? string.Empty
+                ));
+            }
+
+            throw new InvalidOperationException("Cannot create post: no author information provided.");
         }
     }
 }

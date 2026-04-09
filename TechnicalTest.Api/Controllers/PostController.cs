@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TechnicalTest.Api.Mappers;
 using TechnicalTest.Api.Models;
 using TechnicalTest.Application.Abstractions.Services;
-using TechnicalTest.Application.Commands;
 
 namespace TechnicalTest.Api.Controllers
 {
@@ -23,13 +23,9 @@ namespace TechnicalTest.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CreatePostRequest post)
         {
-            var command = new CreatePostCommand(
-                post.AuthorId,
-                post.Title,
-                post.Description,
-                post.Content);
+            var command = post.ToCommand();
 
-            var createdPost = await _commandHandler.CreatePostAsync(command);
+            var createdPost = await _commandHandler.Handle(command);
             return Ok(createdPost);
         }
     }

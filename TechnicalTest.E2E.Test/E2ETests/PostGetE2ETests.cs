@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http.Json;
 using TechnicalTest.Application.DTOs;
 using TechnicalTest.Infrastructure.Persistence;
-using TechnicalTest.TestHelpers.Builders;
+using TechnicalTest.TestHelpers.Builders.Domain;
 
 namespace TechnicalTest.E2E.Test.E2ETests
 {

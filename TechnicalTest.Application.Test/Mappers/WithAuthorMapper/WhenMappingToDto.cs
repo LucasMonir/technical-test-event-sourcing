@@ -2,7 +2,7 @@
 using TechnicalTest.Application.DTOs;
 using TechnicalTest.Application.Mappers;
 using TechnicalTest.Domain;
-using TechnicalTest.TestHelpers.Builders;
+using TechnicalTest.TestHelpers.Builders.Domain;
 
 namespace TechnicalTest.Application.Test.Mappers.WithAuthorMapper
 {

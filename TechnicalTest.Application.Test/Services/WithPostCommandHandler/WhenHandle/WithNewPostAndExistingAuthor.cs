@@ -1,21 +1,26 @@
 ﻿using FluentAssertions;
 using NSubstitute;
 using TechnicalTest.Application.Abstractions.Repositories;
+using TechnicalTest.Application.Commands;
 using TechnicalTest.Application.Services;
 using TechnicalTest.Domain;
 using TechnicalTest.TestHelpers.Builders.Domain;
 
-namespace TechnicalTest.Application.Test.Services.WithPostQueryService.WhenGetPostAsync
+namespace TechnicalTest.Application.Test.Services.WithPostCommandHandler.WhenHandle
 {
-    public class WithExistingPost
+    public class WithNewPostAndExistingAuthor
     {
-        private readonly IPostRepository _postRepository;
         private readonly IAuthorRepository _authorRepository;
-        private readonly PostQueryService _sut;
-        private readonly Post _post;
-        private readonly Author _author;
+        private readonly IPostRepository _postRepository;
 
-        public WithExistingPost()
+        private readonly CreatePostCommand _createPostCommand;
+
+        private readonly Author _author;
+        private readonly Post _post;
+
+        private readonly PostCommandHandler _sut;
+
+        public WithNewPostAndExistingAuthor()
         {
             _author = AuthorBuilder.Default()
                 .Build();
@@ -24,36 +29,34 @@ namespace TechnicalTest.Application.Test.Services.WithPostQueryService.WhenGetPo
                 .WithAutorId(_author.Id)
                 .Build();
 
+            _createPostCommand = new CreatePostCommand(
+                _post.AuthorId,
+                _post.Title,
+                _post.Description,
+                _post.Content
+            );
+
             _authorRepository = Substitute.For<IAuthorRepository>();
             _authorRepository.GetPostAuthorAsync(_post.AuthorId)
                 .Returns(_author);
 
             _postRepository = Substitute.For<IPostRepository>();
-            _postRepository.GetPostAsync(_post.Id)
+            _postRepository.CreatePostAsync(_post)
                 .Returns(_post);
 
-            _sut = new PostQueryService(_postRepository,
-                _authorRepository);
+            _sut = new PostCommandHandler(_authorRepository, _postRepository);
         }
 
+
         [Fact]
-        public async Task ThenMustReturnExpectedPost()
+        public async Task ThenMustCreateExpectedPost()
         {
-            var result = await _sut.GetPostAsync(_post.Id);
+            var result = await _sut.Handle(_createPostCommand);
 
             result.Should().BeEquivalentTo(_post, options => options
                 .ComparingByMembers<Post>()
-                .ExcludingMissingMembers()
-                );
-        }
-
-        [Fact]
-        public async Task ThenMustReturnExpectedPostWithAuthorWhenIncluded()
-        {
-            var result = await _sut.GetPostAsync(_post.Id, includeAuthor: true);
-
-            result.Should().NotBeNull();
-            result.Author.Should().BeEquivalentTo(_author);
+                .Excluding(x => x.Id)
+            );
         }
     }
 }

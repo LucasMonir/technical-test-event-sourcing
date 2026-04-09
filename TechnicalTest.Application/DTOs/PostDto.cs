@@ -6,6 +6,6 @@
         string Title,
         string Description,
         string Content,
-        AuthorDto? Author
+        AuthorDto? Author = null
     );
 }

@@ -1,22 +1,22 @@
 ﻿using FluentAssertions;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using TechnicalTest.Domain;
 using TechnicalTest.Infrastructure.Persistence.Repositories;
-using TechnicalTest.TestHelpers.Builders;
+using TechnicalTest.TestHelpers.Builders.Domain;
+using TechnicalTest.TestHelpers.Database;
 
 namespace TechnicalTest.Infrastructure.Persistence.Test.Repositories.WithPostRepository.WhenGetPostAsync
 {
     public class WithExistingPost : IAsyncLifetime
     {
-        private readonly AppDbContext _appDbContext;
+        private readonly AppDbContext _dbContext;
         private readonly PostRepository _postRepository;
-        private readonly SqliteConnection _connection;
         private readonly Post _post;
         private readonly Author _author;
 
         public WithExistingPost()
         {
+            _dbContext = new TestDbContextFactory().Context;
+
             _author = AuthorBuilder.Default()
                 .Build();
 
@@ -24,17 +24,7 @@ namespace TechnicalTest.Infrastructure.Persistence.Test.Repositories.WithPostRep
                 .WithAutorId(_author.Id)
                 .Build();
 
-            _connection = new SqliteConnection("Filename=:memory:");
-            _connection.Open();
-
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlite(_connection)
-                .Options;
-
-            _appDbContext = new AppDbContext(options);
-            _appDbContext.Database.EnsureCreated();
-
-            _postRepository = new PostRepository(_appDbContext);
+            _postRepository = new PostRepository(_dbContext);
         }
 
         [Fact]
@@ -45,17 +35,18 @@ namespace TechnicalTest.Infrastructure.Persistence.Test.Repositories.WithPostRep
             result.Should().Be(_post);
         }
 
+        #region Setup and Teardown
         async Task IAsyncLifetime.InitializeAsync()
         {
-            await _appDbContext.Authors.AddAsync(_author);
-            await _appDbContext.Posts.AddAsync(_post);
-            await _appDbContext.SaveChangesAsync();
+            await _dbContext.Authors.AddAsync(_author);
+            await _dbContext.Posts.AddAsync(_post);
+            await _dbContext.SaveChangesAsync();
         }
 
         async Task IAsyncLifetime.DisposeAsync()
         {
-            await _appDbContext.DisposeAsync();
-            _connection.Close();
+            _dbContext.Dispose();
         }
+        #endregion
     }
 }

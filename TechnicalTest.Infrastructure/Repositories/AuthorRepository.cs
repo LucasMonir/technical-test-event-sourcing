@@ -12,5 +12,13 @@ namespace TechnicalTest.Infrastructure.Persistence.Repositories
         {
             return await _dbContext.Authors.FirstOrDefaultAsync(a => a.Id == id);
         }
+
+        public async Task<Author> CreateAuthorAsync(Author author)
+        {
+            var entry = await _dbContext.Authors.AddAsync(author);
+            await _dbContext.SaveChangesAsync();
+
+            return entry.Entity;
+        }
     }
 }

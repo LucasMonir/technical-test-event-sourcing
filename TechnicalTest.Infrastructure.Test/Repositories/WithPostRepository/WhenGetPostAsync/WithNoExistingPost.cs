@@ -1,30 +1,19 @@
 ﻿using FluentAssertions;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using TechnicalTest.Infrastructure.Persistence.Repositories;
+using TechnicalTest.TestHelpers.Database;
 
 namespace TechnicalTest.Infrastructure.Persistence.Test.Repositories.WithPostRepository.WhenGetPostAsync
 {
-    public class WithNoExistingPost
+    public class WithNoExistingPost : IAsyncLifetime
     {
-        private readonly AppDbContext _appDbContext;
+        private readonly AppDbContext _dbContext;
         private readonly PostRepository _postRepository;
-        private readonly SqliteConnection _connection;
         private readonly Guid _id;
 
         public WithNoExistingPost()
         {
-            _connection = new SqliteConnection("Filename=:memory:");
-            _connection.Open();
-
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlite(_connection)
-                .Options;
-
-            _appDbContext = new AppDbContext(options);
-            _appDbContext.Database.EnsureCreated();
-
-            _postRepository = new PostRepository(_appDbContext);
+            _dbContext = new TestDbContextFactory().Context;
+            _postRepository = new PostRepository(_dbContext);
         }
 
         [Fact]
@@ -33,14 +22,15 @@ namespace TechnicalTest.Infrastructure.Persistence.Test.Repositories.WithPostRep
             var result = await _postRepository.GetPostAsync(_id);
 
             result.Should().BeNull();
-
-            DisposeAsync();
         }
 
-        private async void DisposeAsync()
+        #region Setup and Teardown
+        public Task InitializeAsync() => Task.CompletedTask;
+
+        public async Task DisposeAsync()
         {
-            await _appDbContext.DisposeAsync();
-            _connection.Close();
+            await _dbContext.DisposeAsync();
         }
+        #endregion
     }
 }

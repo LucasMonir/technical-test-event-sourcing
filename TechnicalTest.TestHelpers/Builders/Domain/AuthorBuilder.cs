@@ -1,6 +1,6 @@
 ﻿using TechnicalTest.Domain;
 
-namespace TechnicalTest.TestHelpers.Builders
+namespace TechnicalTest.TestHelpers.Builders.Domain
 {
     public class AuthorBuilder
     {

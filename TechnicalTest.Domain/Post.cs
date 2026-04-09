@@ -7,5 +7,20 @@
         public required string Title { get; set; }
         public required string Description { get; set; }
         public required string Content { get; set; }
+
+        public static Post Create(Guid authorId,
+            string title,
+            string description,
+            string content)
+        {
+            return new Post
+            {
+                Id = Guid.NewGuid(),
+                AuthorId = authorId,
+                Title = title,
+                Description = description,
+                Content = content
+            };
+        }
     }
 }

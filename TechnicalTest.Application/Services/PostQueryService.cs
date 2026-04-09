@@ -20,7 +20,7 @@ namespace TechnicalTest.Application.Services
                 return null;
 
             if (!includeAuthor)
-                return PostMapper.MapToDto(post, null);
+                return PostMapper.MapToDto(post);
 
             var author = await _authorRepository.GetPostAuthorAsync(post.AuthorId);
 
