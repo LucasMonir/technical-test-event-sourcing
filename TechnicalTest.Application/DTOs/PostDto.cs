@@ -1,11 +1,11 @@
 ﻿namespace TechnicalTest.Application.DTOs
 {
-    public record PostDto
-    {
-        public Guid Id { get; set; }
-        public Guid AuthorId { get; set; }
-        public required string Title { get; set; }
-        public required string Description { get; set; }
-        public required string Content { get; set; }
-    }
+    public record PostDto(
+        Guid Id,
+        Guid AuthorId,
+        string Title,
+        string Description,
+        string Content,
+        AuthorDto? Author
+    );
 }

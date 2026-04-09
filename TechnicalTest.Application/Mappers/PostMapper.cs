@@ -5,16 +5,16 @@ namespace TechnicalTest.Application.Mappers
 {
     public static class PostMapper
     {
-        public static PostDto MapToDto(Post post)
+        public static PostDto? MapToDto(Post? post, Author? author)
         {
-            return new()
-            {
-                Id = post.Id,
-                AuthorId = post.AuthorId,
-                Title = post.Title,
-                Content = post.Content,
-                Description = post.Description,
-            };
+            return post is null ? null
+            : new PostDto(
+                post.Id,
+                post.AuthorId,
+                post.Title,
+                post.Description,
+                post.Content,
+                AuthorMapper.MapToDto(author));
         }
     }
 }

@@ -12,6 +12,7 @@ namespace TechnicalTest.Infrastructure.Persistence.Repositories
         {
             await _dbContext.Posts.AddAsync(post);
             await _dbContext.SaveChangesAsync();
+
             return post;
         }
 

@@ -6,21 +6,30 @@ using TechnicalTest.Domain;
 
 namespace TechnicalTest.Application.Services
 {
-    internal class PostQueryService(IPostRepository postRepository) : IPostQueryService
+    internal class PostQueryService(IPostRepository postRepository, IAuthorRepository authorRepository)
+        : IPostQueryService
     {
         private readonly IPostRepository _postRepository = postRepository;
+        private readonly IAuthorRepository _authorRepository = authorRepository;
 
-        public async Task<PostDto?> GetPostAsync(Guid id)
+        public async Task<PostDto?> GetPostAsync(Guid id, bool includeAuthor = false)
         {
             var post = await _postRepository.GetPostAsync(id);
 
-            return post is null ? null : PostMapper.MapToDto(post);
+            if (post is null)
+                return null;
+
+            if (!includeAuthor)
+                return PostMapper.MapToDto(post, null);
+
+            var author = await _authorRepository.GetPostAuthorAsync(post.AuthorId);
+
+            return PostMapper.MapToDto(post, author);
         }
 
-        public Task<Post> CreatePostAsync(Post post)
+        public async Task<Post> CreatePostAsync(Post post)
         {
-            throw new NotImplementedException();
-
+            return await _postRepository.CreatePostAsync(post);
         }
     }
 }

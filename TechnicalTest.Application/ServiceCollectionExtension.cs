@@ -9,6 +9,7 @@ namespace TechnicalTest.Application
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
             services.AddScoped<IPostQueryService, PostQueryService>();
+            services.AddScoped<IPostCommandHandler, PostCommandHandler>();
 
             return services;
         }

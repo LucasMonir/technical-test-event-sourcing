@@ -8,15 +8,18 @@ namespace TechnicalTest.Application.Test.Services.WithPostQueryService.WhenGetPo
     public class WithNonExistingPost
     {
         private readonly IPostRepository _postRepository;
+        private readonly IAuthorRepository _authorRepository;
         private readonly PostQueryService _sut;
 
         public WithNonExistingPost()
         {
             _postRepository = Substitute.For<IPostRepository>();
+            _authorRepository = Substitute.For<IAuthorRepository>();
             _postRepository.GetPostAsync(Arg.Any<Guid>())
                 .Returns((Domain.Post?)null);
 
-            _sut = new PostQueryService(_postRepository);
+            _sut = new PostQueryService(_postRepository,
+                _authorRepository);
         }
 
         [Fact]
