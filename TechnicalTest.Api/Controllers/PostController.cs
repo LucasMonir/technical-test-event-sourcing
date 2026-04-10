@@ -17,7 +17,7 @@ namespace TechnicalTest.Api.Controllers
         public async Task<IActionResult> Post(Guid id, bool includeAuthor = false)
         {
             var post = await _queryService.GetPostAsync(id, includeAuthor);
-            return Ok(post);
+            return post is not null ? Ok(post) : NotFound();
         }
 
         [HttpPost]
@@ -26,7 +26,7 @@ namespace TechnicalTest.Api.Controllers
             var command = post.ToCommand();
 
             var createdPost = await _commandHandler.Handle(command);
-            return Ok(createdPost);
+            return CreatedAtAction(nameof(Post), createdPost);
         }
     }
 }

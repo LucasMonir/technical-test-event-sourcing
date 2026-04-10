@@ -1,7 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using TechnicalTest.Application.Abstractions.Events;
+using TechnicalTest.Application.Abstractions.Persistence;
 using TechnicalTest.Application.Abstractions.Repositories;
+using TechnicalTest.Infrastructure.Persistence.Events;
 using TechnicalTest.Infrastructure.Persistence.Repositories;
+using TechnicalTest.Infrastructure.Persistence.Services;
 
 namespace TechnicalTest.Infrastructure.Persistence
 {
@@ -9,22 +13,33 @@ namespace TechnicalTest.Infrastructure.Persistence
     {
         public static IServiceCollection AddInfrastructurePersistence(this IServiceCollection services, string connectionString)
         {
-            AddRepositories(services);
-            AddDbContext(services, connectionString);
-
-            return services;
+            return services.AddRepositories()
+                .AddDbContext(connectionString)
+                .AddEventStore()
+                .AddUnitOfWork();
         }
 
-        private static void AddRepositories(IServiceCollection services)
+        private static IServiceCollection AddRepositories(this IServiceCollection services)
         {
-            services.AddScoped<IPostRepository, PostRepository>();
-            services.AddScoped<IAuthorRepository, AuthorRepository>();
+            return services.AddScoped<IPostRepository, PostRepository>()
+                .AddScoped<IAuthorRepository, _sut>();
+
         }
 
-        private static void AddDbContext(IServiceCollection services, string connectionString)
+        private static IServiceCollection AddDbContext(this IServiceCollection services, string connectionString)
         {
-            services.AddDbContext<AppDbContext>(options =>
+            return services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlite(connectionString));
+        }
+
+        private static IServiceCollection AddEventStore(this IServiceCollection services)
+        {
+            return services.AddScoped<IEventStore, EfEventStore>();
+        }
+
+        private static IServiceCollection AddUnitOfWork(this IServiceCollection services)
+        {
+            return services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
     }
 }

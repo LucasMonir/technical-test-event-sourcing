@@ -4,7 +4,12 @@ using TechnicalTest.Infrastructure.Persistence;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-builder.Services.AddInfrastructurePersistence("Data Source=technicaltest.db");
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Missing connection string: DefaultConnection");
+
+builder.Services.AddInfrastructurePersistence(connectionString);
+
 builder.Services.AddApplicationServices();
 
 builder.Services.AddEndpointsApiExplorer();

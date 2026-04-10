@@ -2,7 +2,6 @@
 using TechnicalTest.Application.Abstractions.Services;
 using TechnicalTest.Application.DTOs;
 using TechnicalTest.Application.Mappers;
-using TechnicalTest.Domain;
 
 namespace TechnicalTest.Application.Services
 {
@@ -25,11 +24,6 @@ namespace TechnicalTest.Application.Services
             var author = await _authorRepository.GetPostAuthorAsync(post.AuthorId);
 
             return PostMapper.MapToDto(post, author);
-        }
-
-        public async Task<Post> CreatePostAsync(Post post)
-        {
-            return await _postRepository.CreatePostAsync(post);
         }
     }
 }

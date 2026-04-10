@@ -1,8 +1,10 @@
 ﻿using FluentAssertions;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using TechnicalTest.Application.Abstractions.Persistence;
 using TechnicalTest.Domain;
 using TechnicalTest.Infrastructure.Persistence.Repositories;
+using TechnicalTest.Infrastructure.Persistence.Services;
 using TechnicalTest.TestHelpers.Builders.Domain;
 using TechnicalTest.TestHelpers.Database;
 
@@ -11,7 +13,8 @@ namespace TechnicalTest.Infrastructure.Persistence.Test.Repositories.WithAuthorR
     public class WhenExistingAuthor : IAsyncLifetime
     {
         private readonly AppDbContext _dbContext;
-        private readonly AuthorRepository _authorRepository;
+        private readonly _sut _sut;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly Author _author;
 
         public WhenExistingAuthor()
@@ -20,14 +23,18 @@ namespace TechnicalTest.Infrastructure.Persistence.Test.Repositories.WithAuthorR
                 .Build();
 
             _dbContext = new TestDbContextFactory().Context;
-            _authorRepository = new AuthorRepository(_dbContext);
+            _unitOfWork = new UnitOfWork(_dbContext);
+
+            _sut = new _sut(_dbContext);
         }
 
         [Fact]
         public async Task ThenMustThrowDatabaseException()
         {
+            await _sut.CreateAuthorAsync(_author);
+
             await FluentActions.Invoking(async () =>
-                await _authorRepository.CreateAuthorAsync(_author))
+                    await _unitOfWork.CommitAsync())
                 .Should()
                 .ThrowAsync<DbUpdateException>()
                 .WithInnerException<DbUpdateException, SqliteException>();

@@ -8,17 +8,16 @@ namespace TechnicalTest.Infrastructure.Persistence.Repositories
     {
         private readonly AppDbContext _dbContext = dbContext;
 
-        public async Task<Post> CreatePostAsync(Post post)
-        {
-            var entry = await _dbContext.Posts.AddAsync(post);
-            await _dbContext.SaveChangesAsync();
-
-            return entry.Entity;
-        }
-
         public async Task<Post?> GetPostAsync(Guid id)
         {
             return await _dbContext.Posts.FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task<Guid> CreatePostAsync(Post post)
+        {
+            var entry = await _dbContext.Posts.AddAsync(post);
+
+            return entry.Entity.Id;
         }
     }
 }

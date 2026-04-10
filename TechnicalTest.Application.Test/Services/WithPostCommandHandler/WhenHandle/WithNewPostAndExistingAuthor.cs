@@ -1,9 +1,12 @@
 ﻿using FluentAssertions;
 using NSubstitute;
+using TechnicalTest.Application.Abstractions.Events;
+using TechnicalTest.Application.Abstractions.Persistence;
 using TechnicalTest.Application.Abstractions.Repositories;
 using TechnicalTest.Application.Commands;
 using TechnicalTest.Application.Services;
 using TechnicalTest.Domain;
+using TechnicalTest.Domain.Events;
 using TechnicalTest.TestHelpers.Builders.Domain;
 
 namespace TechnicalTest.Application.Test.Services.WithPostCommandHandler.WhenHandle
@@ -12,6 +15,8 @@ namespace TechnicalTest.Application.Test.Services.WithPostCommandHandler.WhenHan
     {
         private readonly IAuthorRepository _authorRepository;
         private readonly IPostRepository _postRepository;
+        private readonly IEventStore _eventStore;
+        private readonly IUnitOfWork _unitOfWork;
 
         private readonly CreatePostCommand _createPostCommand;
 
@@ -41,22 +46,59 @@ namespace TechnicalTest.Application.Test.Services.WithPostCommandHandler.WhenHan
                 .Returns(_author);
 
             _postRepository = Substitute.For<IPostRepository>();
-            _postRepository.CreatePostAsync(_post)
-                .Returns(_post);
 
-            _sut = new PostCommandHandler(_authorRepository, _postRepository);
+            _unitOfWork = Substitute.For<IUnitOfWork>();
+            _eventStore = Substitute.For<IEventStore>();
+
+            _sut = new PostCommandHandler(_authorRepository,
+                _postRepository,
+                _eventStore,
+                _unitOfWork);
         }
 
 
         [Fact]
-        public async Task ThenMustCreateExpectedPost()
+        public async Task ThenMustCallRepository()
         {
             var result = await _sut.Handle(_createPostCommand);
 
-            result.Should().BeEquivalentTo(_post, options => options
-                .ComparingByMembers<Post>()
-                .Excluding(x => x.Id)
+            result.Should().NotBeEmpty();
+
+            await _postRepository.Received(1).CreatePostAsync(Arg.Is<Post>(p =>
+                p.Id == result &&
+                p.AuthorId == _author.Id &&
+                p.Title == _post.Title &&
+                p.Description == _post.Description &&
+                p.Content == _post.Content)
             );
+        }
+
+        [Fact]
+        public async Task ThenMustCallEventStore()
+        {
+            var result = await _sut.Handle(_createPostCommand);
+
+            await _eventStore.Received(1).AppendAsync(
+                $"post-{result}",
+                expectedVersion: 0,
+                Arg.Is<IReadOnlyCollection<object>>(events =>
+                    events.OfType<PostCreatedEvent>().Any(e =>
+                        e.PostId == result &&
+                        e.AuthorId == _author.Id &&
+                        e.Title == _post.Title &&
+                        e.Description == _post.Description &&
+                        e.Content == _post.Content
+                    )
+                )
+            );
+        }
+
+        [Fact]
+        public async Task ThenMustCallUnitOfWork()
+        {
+            _ = await _sut.Handle(_createPostCommand);
+
+            await _unitOfWork.Received(1).CommitAsync();
         }
     }
 }

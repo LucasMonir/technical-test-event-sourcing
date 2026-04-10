@@ -10,11 +10,10 @@ namespace TechnicalTest.Api.Mappers
             if (request is null)
                 return null;
 
-            return new AuthorModel
-            {
-                Name = request.Name,
-                Surname = request.Surname
-            };
+            return new AuthorModel(
+                request.Name,
+                request.Surname
+            );
         }
     }
 }

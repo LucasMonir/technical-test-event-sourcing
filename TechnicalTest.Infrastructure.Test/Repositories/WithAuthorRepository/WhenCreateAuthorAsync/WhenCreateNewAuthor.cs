@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TechnicalTest.Domain;
 using TechnicalTest.Infrastructure.Persistence.Repositories;
+using TechnicalTest.Infrastructure.Persistence.Services;
 using TechnicalTest.TestHelpers.Builders.Domain;
 using TechnicalTest.TestHelpers.Database;
 
@@ -10,7 +11,8 @@ namespace TechnicalTest.Infrastructure.Persistence.Test.Repositories.WithAuthorR
     public class WhenCreateNewAuthor : IAsyncLifetime
     {
         private readonly AppDbContext _dbContext;
-        private readonly AuthorRepository _authorRepository;
+        private readonly _sut _authorRepository;
+        private readonly UnitOfWork _unitOfWork;
         private readonly Author _author;
 
         public WhenCreateNewAuthor()
@@ -19,13 +21,16 @@ namespace TechnicalTest.Infrastructure.Persistence.Test.Repositories.WithAuthorR
                 .Build();
 
             _dbContext = new TestDbContextFactory().Context;
-            _authorRepository = new AuthorRepository(_dbContext);
+            _unitOfWork = new UnitOfWork(_dbContext);
+            _authorRepository = new _sut(_dbContext);
         }
 
         [Fact]
         public async Task ThenMustCreateAndReturnAuthor()
         {
-            var result = await _authorRepository.CreateAuthorAsync(_author);
+            await _authorRepository.CreateAuthorAsync(_author);
+            await _unitOfWork.CommitAsync();
+
             var saved = await _dbContext.Authors.FirstOrDefaultAsync(x => x.Id == _author.Id);
 
             saved.Should().NotBeNull();

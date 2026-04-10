@@ -7,19 +7,20 @@ namespace TechnicalTest.Infrastructure.Persistence.Test.Repositories.WithPostRep
     public class WithNoExistingPost : IAsyncLifetime
     {
         private readonly AppDbContext _dbContext;
-        private readonly PostRepository _postRepository;
+        private readonly PostRepository _sut;
         private readonly Guid _id;
 
         public WithNoExistingPost()
         {
+            _id = Guid.Empty;
             _dbContext = new TestDbContextFactory().Context;
-            _postRepository = new PostRepository(_dbContext);
+            _sut = new PostRepository(_dbContext);
         }
 
         [Fact]
         public async Task ThenMustReturnNull()
         {
-            var result = await _postRepository.GetPostAsync(_id);
+            var result = await _sut.GetPostAsync(_id);
 
             result.Should().BeNull();
         }

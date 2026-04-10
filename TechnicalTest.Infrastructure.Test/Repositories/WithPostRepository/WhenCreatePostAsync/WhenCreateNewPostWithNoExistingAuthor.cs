@@ -3,6 +3,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using TechnicalTest.Domain;
 using TechnicalTest.Infrastructure.Persistence.Repositories;
+using TechnicalTest.Infrastructure.Persistence.Services;
 using TechnicalTest.TestHelpers.Builders.Domain;
 using TechnicalTest.TestHelpers.Database;
 
@@ -11,7 +12,8 @@ namespace TechnicalTest.Infrastructure.Persistence.Test.Repositories.WithPostRep
     public class WhenCreateNewPostWithNoExistingAuthor : IAsyncLifetime
     {
         private readonly AppDbContext _dbContext;
-        private readonly PostRepository _postRepository;
+        private readonly UnitOfWork _unitOfWork;
+        private readonly PostRepository _sut;
         private readonly Post _post;
 
         public WhenCreateNewPostWithNoExistingAuthor()
@@ -20,15 +22,17 @@ namespace TechnicalTest.Infrastructure.Persistence.Test.Repositories.WithPostRep
                 .Build();
 
             _dbContext = new TestDbContextFactory().Context;
-
-            _postRepository = new PostRepository(_dbContext);
+            _unitOfWork = new UnitOfWork(_dbContext);
+            _sut = new PostRepository(_dbContext);
         }
 
         [Fact]
         public async Task ThenMustThrowDatabaseException()
         {
+            await _sut.CreatePostAsync(_post);
+
             await FluentActions.Invoking(async () =>
-                await _postRepository.CreatePostAsync(_post))
+                await _unitOfWork.CommitAsync())
                 .Should()
                 .ThrowAsync<DbUpdateException>()
                 .WithInnerException<DbUpdateException, SqliteException>();

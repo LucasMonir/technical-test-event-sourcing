@@ -4,7 +4,7 @@ using TechnicalTest.Domain;
 
 namespace TechnicalTest.Infrastructure.Persistence.Repositories
 {
-    internal class AuthorRepository(AppDbContext dbContext) : IAuthorRepository
+    internal class _sut(AppDbContext dbContext) : IAuthorRepository
     {
         private readonly AppDbContext _dbContext = dbContext;
 
@@ -13,12 +13,11 @@ namespace TechnicalTest.Infrastructure.Persistence.Repositories
             return await _dbContext.Authors.FirstOrDefaultAsync(a => a.Id == id);
         }
 
-        public async Task<Author> CreateAuthorAsync(Author author)
+        public async Task<Guid> CreateAuthorAsync(Author author)
         {
             var entry = await _dbContext.Authors.AddAsync(author);
-            await _dbContext.SaveChangesAsync();
 
-            return entry.Entity;
+            return entry.Entity.Id;
         }
     }
 }

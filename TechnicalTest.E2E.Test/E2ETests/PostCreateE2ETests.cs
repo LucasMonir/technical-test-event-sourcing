@@ -1,5 +1,7 @@
 ﻿using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 using System.Net.Http.Json;
 using TechnicalTest.Application.DTOs;
 using TechnicalTest.Infrastructure.Persistence;
@@ -20,7 +22,6 @@ namespace TechnicalTest.E2E.Test.E2ETests
             var scope = factory.Services.CreateScope();
             _dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         }
-
 
         [Fact]
         public async Task CreateNewPostWithNewAuthorShouldReturnExpectedValues()
@@ -44,15 +45,26 @@ namespace TechnicalTest.E2E.Test.E2ETests
                 expectedAuthor);
 
             var response = await _client.PostAsJsonAsync($"/post", postRequest);
+            var result = await response.Content.ReadFromJsonAsync<Guid>();
 
-            var result = await response.Content.ReadFromJsonAsync<PostDto>();
+            response.StatusCode.Should().Be(HttpStatusCode.Created);
+            result.Should().NotBeEmpty();
 
-            result.Should().NotBeNull();
-            result.Should().BeEquivalentTo(expectedPost, options =>
-                options.Excluding(post => post.Id)
-                .Excluding(post => post.AuthorId)
-                .Excluding(post => post.Author)
-            );
+            var savedPost = await _dbContext.Posts
+                .FirstOrDefaultAsync(p => p.Id == result);
+
+            savedPost.Should().NotBeNull();
+            savedPost!.Title.Should().Be(postRequest.Title);
+            savedPost.Description.Should().Be(postRequest.Description);
+            savedPost.Content.Should().Be(postRequest.Content);
+            savedPost.AuthorId.Should().NotBeEmpty();
+
+            var savedAuthor = await _dbContext.Authors
+                .FirstOrDefaultAsync(a => a.Id == savedPost!.AuthorId);
+
+            savedAuthor.Should().NotBeNull();
+            savedAuthor!.Name.Should().Be(authorRequest.Name);
+            savedAuthor.Surname.Should().Be(authorRequest.Surname);
         }
 
         [Fact]
@@ -75,12 +87,20 @@ namespace TechnicalTest.E2E.Test.E2ETests
             await _dbContext.SaveChangesAsync();
 
             var response = await _client.PostAsJsonAsync($"/post", postRequest);
-            var result = await response.Content.ReadFromJsonAsync<PostDto>();
+            var result = await response.Content.ReadFromJsonAsync<Guid>();
 
-            result.Should().NotBeNull();
-            result.Should().BeEquivalentTo(expectedPost, options =>
-                options.Excluding(post => post.Id)
-            );
+            response.StatusCode.Should().Be(HttpStatusCode.Created);
+
+            result.Should().NotBeEmpty();
+
+            var savedPost = await _dbContext.Posts
+                .FirstOrDefaultAsync(p => p.Id == result);
+
+            savedPost.Should().NotBeNull();
+            savedPost!.Title.Should().Be(postRequest.Title);
+            savedPost.Description.Should().Be(postRequest.Description);
+            savedPost.Content.Should().Be(postRequest.Content);
+            savedPost.AuthorId.Should().NotBeEmpty();
         }
     }
 }
