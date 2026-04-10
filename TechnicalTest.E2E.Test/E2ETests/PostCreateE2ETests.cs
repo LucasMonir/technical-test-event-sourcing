@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Json;
 using TechnicalTest.Application.DTOs;
+using TechnicalTest.Domain.Events;
 using TechnicalTest.Infrastructure;
 using TechnicalTest.TestHelpers.Builders.Application;
 using TechnicalTest.TestHelpers.Builders.Domain;
@@ -14,7 +15,7 @@ namespace TechnicalTest.E2E.Test.E2ETests
     {
         private readonly HttpClient _client;
         private readonly AppDbContext _dbContext;
-
+        private readonly int _eventVersion = 1;
         public PostCreateE2ETests(TechnicalTestWebApplicationFactory factory)
         {
             _client = factory.CreateClient();
@@ -65,6 +66,13 @@ namespace TechnicalTest.E2E.Test.E2ETests
             savedAuthor.Should().NotBeNull();
             savedAuthor!.Name.Should().Be(authorRequest.Name);
             savedAuthor.Surname.Should().Be(authorRequest.Surname);
+
+            var storedEvent = await _dbContext.StoredEvents
+                .SingleAsync(x => x.StreamId == $"post-{savedPost.Id}");
+
+            storedEvent.Should().NotBeNull();
+            storedEvent.EventType.Should().Be(nameof(PostCreatedEvent));
+            storedEvent.Version.Should().Be(_eventVersion);
         }
 
         [Fact]
@@ -101,6 +109,13 @@ namespace TechnicalTest.E2E.Test.E2ETests
             savedPost.Description.Should().Be(postRequest.Description);
             savedPost.Content.Should().Be(postRequest.Content);
             savedPost.AuthorId.Should().NotBeEmpty();
+
+            var storedEvent = await _dbContext.StoredEvents
+                .SingleAsync(x => x.StreamId == $"post-{savedPost.Id}");
+
+            storedEvent.Should().NotBeNull();
+            storedEvent.EventType.Should().Be(nameof(PostCreatedEvent));
+            storedEvent.Version.Should().Be(_eventVersion);
         }
     }
 }

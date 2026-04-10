@@ -29,7 +29,7 @@ namespace TechnicalTest.Infrastructure.Events
                 {
                     StreamId = streamId,
                     Version = nextVersion,
-                    EventType = @event.GetType().FullName!,
+                    EventType = @event.GetType().Name,
                     EventData = JsonSerializer.Serialize(@event, @event.GetType()),
                     OccurredAt = DateTimeOffset.UtcNow
                 });

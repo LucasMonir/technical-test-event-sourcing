@@ -24,7 +24,6 @@ namespace TechnicalTest.E2E.Test
                 using var sp = services.BuildServiceProvider();
                 using var scope = sp.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                db.Database.EnsureCreated();
             });
         }
 

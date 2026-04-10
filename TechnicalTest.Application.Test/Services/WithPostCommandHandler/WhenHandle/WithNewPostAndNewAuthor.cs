@@ -3,6 +3,7 @@ using NSubstitute;
 using TechnicalTest.Application.Abstractions.Events;
 using TechnicalTest.Application.Abstractions.Persistence;
 using TechnicalTest.Application.Abstractions.Repositories;
+using TechnicalTest.Application.Abstractions.Services;
 using TechnicalTest.Application.Commands;
 using TechnicalTest.Application.Services;
 using TechnicalTest.Domain;
@@ -12,7 +13,7 @@ namespace TechnicalTest.Application.Test.Services.WithPostCommandHandler.WhenHan
 {
     public class WithNewPostAndNewAuthor
     {
-        private readonly IAuthorRepository _authorRepository;
+        private readonly IAuthorResolver _authorResolver;
         private readonly IPostRepository _postRepository;
         private readonly IEventStore _eventStore;
         private readonly IUnitOfWork _unitOfWork;
@@ -44,8 +45,8 @@ namespace TechnicalTest.Application.Test.Services.WithPostCommandHandler.WhenHan
                 )
             );
 
-            _authorRepository = Substitute.For<IAuthorRepository>();
-            _authorRepository.CreateAuthorAsync(Arg.Any<Author>())
+            _authorResolver = Substitute.For<IAuthorResolver>();
+            _authorResolver.ResolveAsync(_createPostCommand)
                 .Returns(_author.Id);
 
             _postRepository = Substitute.For<IPostRepository>();
@@ -53,8 +54,9 @@ namespace TechnicalTest.Application.Test.Services.WithPostCommandHandler.WhenHan
             _unitOfWork = Substitute.For<IUnitOfWork>();
             _eventStore = Substitute.For<IEventStore>();
 
-            _sut = new PostCommandHandler(_authorRepository,
+            _sut = new PostCommandHandler(
                 _postRepository,
+                _authorResolver,
                 _eventStore,
                 _unitOfWork);
         }
@@ -77,15 +79,15 @@ namespace TechnicalTest.Application.Test.Services.WithPostCommandHandler.WhenHan
         }
 
         [Fact]
-        public async Task ThenMustCallAuthorRepository()
+        public async Task ThenMustCallAuthorResolver()
         {
             var result = await _sut.Handle(_createPostCommand);
 
             result.Should().NotBeEmpty();
 
-            await _authorRepository.Received(1).CreateAuthorAsync(Arg.Is<Author>(p =>
-                p.Name == _author.Name &&
-                p.Surname == _author.Surname)
+            await _authorResolver.Received(1).ResolveAsync(Arg.Is<CreatePostCommand>(p =>
+                p.Author!.Name == _author.Name &&
+                p.Author.Surname == _author.Surname)
             );
         }
 

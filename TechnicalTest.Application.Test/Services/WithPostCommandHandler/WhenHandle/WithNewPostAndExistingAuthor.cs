@@ -3,6 +3,7 @@ using NSubstitute;
 using TechnicalTest.Application.Abstractions.Events;
 using TechnicalTest.Application.Abstractions.Persistence;
 using TechnicalTest.Application.Abstractions.Repositories;
+using TechnicalTest.Application.Abstractions.Services;
 using TechnicalTest.Application.Commands;
 using TechnicalTest.Application.Services;
 using TechnicalTest.Domain;
@@ -13,8 +14,8 @@ namespace TechnicalTest.Application.Test.Services.WithPostCommandHandler.WhenHan
 {
     public class WithNewPostAndExistingAuthor
     {
-        private readonly IAuthorRepository _authorRepository;
         private readonly IPostRepository _postRepository;
+        private readonly IAuthorResolver _authorResolver;
         private readonly IEventStore _eventStore;
         private readonly IUnitOfWork _unitOfWork;
 
@@ -41,17 +42,18 @@ namespace TechnicalTest.Application.Test.Services.WithPostCommandHandler.WhenHan
                 _post.Content
             );
 
-            _authorRepository = Substitute.For<IAuthorRepository>();
-            _authorRepository.GetPostAuthorAsync(_post.AuthorId)
-                .Returns(_author);
+            _authorResolver = Substitute.For<IAuthorResolver>();
+            _authorResolver.ResolveAsync(_createPostCommand)
+                .Returns(_author.Id);
 
             _postRepository = Substitute.For<IPostRepository>();
 
             _unitOfWork = Substitute.For<IUnitOfWork>();
             _eventStore = Substitute.For<IEventStore>();
 
-            _sut = new PostCommandHandler(_authorRepository,
+            _sut = new PostCommandHandler(
                 _postRepository,
+                _authorResolver,
                 _eventStore,
                 _unitOfWork);
         }

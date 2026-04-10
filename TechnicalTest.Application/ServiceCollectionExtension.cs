@@ -10,6 +10,7 @@ namespace TechnicalTest.Application
         {
             services.AddScoped<IPostQueryService, PostQueryService>();
             services.AddScoped<IPostCommandHandler, PostCommandHandler>();
+            services.AddScoped<IAuthorResolver, AuthorResolver>();
 
             return services;
         }
