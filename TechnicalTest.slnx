@@ -5,6 +5,10 @@
     <Project Path="TechnicalTest.Domain/TechnicalTest.Domain.csproj" Id="8ee8ee65-d672-45f6-8200-636d049b2263" />
     <Project Path="TechnicalTest.Infrastructure/TechnicalTest.Infrastructure.csproj" Id="8498ee97-d1d5-4084-ad91-f828678c2889" />
   </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="docker-compose.yml" />
+    <File Path="README.md" />
+  </Folder>
   <Folder Name="/Tests/">
     <Project Path="TechnicalTest.Application.Test/TechnicalTest.Application.Test.csproj" Id="22bc55ce-e2ae-43d9-81c3-31023633f160" />
     <Project Path="TechnicalTest.E2E.Test/TechnicalTest.E2E.Test.csproj" Id="8fa0076a-8e6e-4aa2-877f-54ed4dbeca1a" />
