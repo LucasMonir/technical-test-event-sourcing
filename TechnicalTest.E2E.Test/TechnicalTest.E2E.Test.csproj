@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TechnicalTest.Api\TechnicalTest.Api.csproj" />
-    <ProjectReference Include="..\TechnicalTest.Infrastructure\TechnicalTest.Infrastructure.Persistence.csproj" />
+    <ProjectReference Include="..\TechnicalTest.Infrastructure\TechnicalTest.Infrastructure.csproj" />
     <ProjectReference Include="..\TechnicalTest.TestHelpers\TechnicalTest.TestHelpers.csproj" />
   </ItemGroup>
 

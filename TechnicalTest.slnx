@@ -3,7 +3,7 @@
     <Project Path="TechnicalTest.Api/TechnicalTest.Api.csproj" />
     <Project Path="TechnicalTest.Application/TechnicalTest.Application.csproj" Id="cc97c51a-a5e0-4eb6-98ba-d946158d8b64" />
     <Project Path="TechnicalTest.Domain/TechnicalTest.Domain.csproj" Id="8ee8ee65-d672-45f6-8200-636d049b2263" />
-    <Project Path="TechnicalTest.Infrastructure/TechnicalTest.Infrastructure.Persistence.csproj" Id="8498ee97-d1d5-4084-ad91-f828678c2889" />
+    <Project Path="TechnicalTest.Infrastructure/TechnicalTest.Infrastructure.csproj" Id="8498ee97-d1d5-4084-ad91-f828678c2889" />
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="TechnicalTest.Application.Test/TechnicalTest.Application.Test.csproj" Id="22bc55ce-e2ae-43d9-81c3-31023633f160" />
