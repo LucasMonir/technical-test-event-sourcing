@@ -2,7 +2,7 @@
 using TechnicalTest.Application.Abstractions.Repositories;
 using TechnicalTest.Domain;
 
-namespace TechnicalTest.Infrastructure.Persistence.Repositories
+namespace TechnicalTest.Infrastructure.Repositories
 {
     internal class _sut(AppDbContext dbContext) : IAuthorRepository
     {

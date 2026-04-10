@@ -1,8 +1,8 @@
 ﻿using FluentAssertions;
-using TechnicalTest.Infrastructure.Persistence.Repositories;
+using TechnicalTest.Infrastructure.Repositories;
 using TechnicalTest.TestHelpers.Database;
 
-namespace TechnicalTest.Infrastructure.Persistence.Test.Repositories.WithPostRepository.WhenGetPostAsync
+namespace TechnicalTest.Infrastructure.Test.Repositories.WithPostRepository.WhenGetPostAsync
 {
     public class WithNoExistingPost : IAsyncLifetime
     {

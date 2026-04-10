@@ -1,12 +1,12 @@
 ﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using TechnicalTest.Domain;
-using TechnicalTest.Infrastructure.Persistence.Repositories;
-using TechnicalTest.Infrastructure.Persistence.Services;
+using TechnicalTest.Infrastructure.Repositories;
+using TechnicalTest.Infrastructure.Services;
 using TechnicalTest.TestHelpers.Builders.Domain;
 using TechnicalTest.TestHelpers.Database;
 
-namespace TechnicalTest.Infrastructure.Persistence.Test.Repositories.WithAuthorRepository.WhenCreateAuthorAsync
+namespace TechnicalTest.Infrastructure.Test.Repositories.WithAuthorRepository.WhenCreateAuthorAsync
 {
     public class WhenCreateNewAuthor : IAsyncLifetime
     {

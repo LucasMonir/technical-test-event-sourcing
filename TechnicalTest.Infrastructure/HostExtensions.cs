@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace TechnicalTest.Infrastructure.Persistence
+namespace TechnicalTest.Infrastructure
 {
     public static class HostExtensions
     {

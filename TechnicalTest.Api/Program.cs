@@ -1,5 +1,5 @@
 using TechnicalTest.Application;
-using TechnicalTest.Infrastructure.Persistence;
+using TechnicalTest.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 

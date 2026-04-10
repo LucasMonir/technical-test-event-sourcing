@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
-using TechnicalTest.Infrastructure.Persistence;
+using TechnicalTest.Infrastructure;
 
 namespace TechnicalTest.E2E.Test
 {

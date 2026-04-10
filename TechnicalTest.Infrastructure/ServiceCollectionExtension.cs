@@ -3,11 +3,11 @@ using Microsoft.Extensions.DependencyInjection;
 using TechnicalTest.Application.Abstractions.Events;
 using TechnicalTest.Application.Abstractions.Persistence;
 using TechnicalTest.Application.Abstractions.Repositories;
-using TechnicalTest.Infrastructure.Persistence.Events;
-using TechnicalTest.Infrastructure.Persistence.Repositories;
-using TechnicalTest.Infrastructure.Persistence.Services;
+using TechnicalTest.Infrastructure.Events;
+using TechnicalTest.Infrastructure.Repositories;
+using TechnicalTest.Infrastructure.Services;
 
-namespace TechnicalTest.Infrastructure.Persistence
+namespace TechnicalTest.Infrastructure
 {
     public static class ServiceCollectionExtension
     {

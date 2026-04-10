@@ -1,4 +1,4 @@
-﻿namespace TechnicalTest.Infrastructure.Persistence.Events
+﻿namespace TechnicalTest.Infrastructure.Events
 {
     internal sealed class StoredEvent
     {

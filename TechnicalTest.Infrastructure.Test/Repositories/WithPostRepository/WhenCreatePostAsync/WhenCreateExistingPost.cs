@@ -2,12 +2,12 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using TechnicalTest.Domain;
-using TechnicalTest.Infrastructure.Persistence.Repositories;
-using TechnicalTest.Infrastructure.Persistence.Services;
+using TechnicalTest.Infrastructure.Repositories;
+using TechnicalTest.Infrastructure.Services;
 using TechnicalTest.TestHelpers.Builders.Domain;
 using TechnicalTest.TestHelpers.Database;
 
-namespace TechnicalTest.Infrastructure.Persistence.Test.Repositories.WithPostRepository.WhenCreatePostAsync
+namespace TechnicalTest.Infrastructure.Test.Repositories.WithPostRepository.WhenCreatePostAsync
 {
     public class WhenCreateExistingPost : IAsyncLifetime
     {

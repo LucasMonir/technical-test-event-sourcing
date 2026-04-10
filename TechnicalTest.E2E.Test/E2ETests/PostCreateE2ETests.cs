@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Json;
 using TechnicalTest.Application.DTOs;
-using TechnicalTest.Infrastructure.Persistence;
+using TechnicalTest.Infrastructure;
 using TechnicalTest.TestHelpers.Builders.Application;
 using TechnicalTest.TestHelpers.Builders.Domain;
 

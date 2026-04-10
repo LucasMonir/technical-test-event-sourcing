@@ -2,7 +2,7 @@
 using System.Text.Json;
 using TechnicalTest.Application.Abstractions.Events;
 
-namespace TechnicalTest.Infrastructure.Persistence.Events
+namespace TechnicalTest.Infrastructure.Events
 {
     internal sealed class EfEventStore(AppDbContext db) : IEventStore
     {

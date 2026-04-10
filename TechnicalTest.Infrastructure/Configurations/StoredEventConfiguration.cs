@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TechnicalTest.Infrastructure.Persistence.Events;
+using TechnicalTest.Infrastructure.Events;
 
-namespace TechnicalTest.Infrastructure.Persistence.Configurations
+namespace TechnicalTest.Infrastructure.Configurations
 {
     internal class StoredEventConfiguration : IEntityTypeConfiguration<StoredEvent>
     {

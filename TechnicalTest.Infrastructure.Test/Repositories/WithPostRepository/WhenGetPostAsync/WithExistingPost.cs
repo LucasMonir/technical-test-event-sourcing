@@ -1,10 +1,10 @@
 ﻿using FluentAssertions;
 using TechnicalTest.Domain;
-using TechnicalTest.Infrastructure.Persistence.Repositories;
+using TechnicalTest.Infrastructure.Repositories;
 using TechnicalTest.TestHelpers.Builders.Domain;
 using TechnicalTest.TestHelpers.Database;
 
-namespace TechnicalTest.Infrastructure.Persistence.Test.Repositories.WithPostRepository.WhenGetPostAsync
+namespace TechnicalTest.Infrastructure.Test.Repositories.WithPostRepository.WhenGetPostAsync
 {
     public class WithExistingPost : IAsyncLifetime
     {

@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TechnicalTest.Domain;
-using TechnicalTest.Infrastructure.Persistence.Configurations;
-using TechnicalTest.Infrastructure.Persistence.Events;
+using TechnicalTest.Infrastructure.Configurations;
+using TechnicalTest.Infrastructure.Events;
 
-namespace TechnicalTest.Infrastructure.Persistence
+namespace TechnicalTest.Infrastructure
 {
     internal sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using TechnicalTest.Infrastructure.Persistence;
+using TechnicalTest.Infrastructure;
 
 namespace TechnicalTest.TestHelpers.Database
 {

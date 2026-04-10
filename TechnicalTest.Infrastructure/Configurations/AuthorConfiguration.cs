@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TechnicalTest.Domain;
 
-namespace TechnicalTest.Infrastructure.Persistence.Configurations
+namespace TechnicalTest.Infrastructure.Configurations
 {
     internal class AuthorConfiguration : IEntityTypeConfiguration<Author>
     {

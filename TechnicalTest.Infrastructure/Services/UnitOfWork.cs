@@ -1,6 +1,6 @@
 ﻿using TechnicalTest.Application.Abstractions.Persistence;
 
-namespace TechnicalTest.Infrastructure.Persistence.Services
+namespace TechnicalTest.Infrastructure.Services
 {
     internal sealed class UnitOfWork(AppDbContext db) : IUnitOfWork
     {
