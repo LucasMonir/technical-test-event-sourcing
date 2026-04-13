@@ -38,6 +38,8 @@ namespace TechnicalTest.Infrastructure.Test.Events.WithEventStore.ErrorPath
                 .WithMessage($"Concurrency conflict on {_streamId}. Expected 0, got 1.");
         }
 
+
+        #region Setup/Teardown
         public async Task InitializeAsync()
         {
             await _sut.AppendAsync(_streamId, 0, [_event]);
@@ -47,6 +49,7 @@ namespace TechnicalTest.Infrastructure.Test.Events.WithEventStore.ErrorPath
         {
             await _dbContext.DisposeAsync();
         }
+        #endregion
     }
 
 }

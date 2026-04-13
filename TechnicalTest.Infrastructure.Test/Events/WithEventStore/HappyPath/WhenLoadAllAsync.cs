@@ -27,8 +27,8 @@ namespace TechnicalTest.Infrastructure.Test.Events.WithEventStore.HappyPath
             _events =
             [
                 GetNewPostEvent(),
-            GetNewPostEvent(),
-            GetNewPostEvent()
+                GetNewPostEvent(),
+                GetNewPostEvent()
             ];
         }
 

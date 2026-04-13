@@ -16,6 +16,8 @@ namespace TechnicalTest.Infrastructure.Events
             IReadOnlyCollection<IDomainEvent> events,
             CancellationToken cancellationToken = default)
         {
+            EnsureValidStreamId(streamId);
+
             var currentVersion =
                 await _db.StoredEvents
                     .Where(e => e.StreamId == streamId)
@@ -51,6 +53,8 @@ namespace TechnicalTest.Infrastructure.Events
             string streamId,
             CancellationToken cancellationToken = default)
         {
+            EnsureValidStreamId(streamId);
+
             var stored = await _db.StoredEvents
                 .Where(e => e.StreamId == streamId)
                 .OrderBy(e => e.Version)
@@ -63,6 +67,27 @@ namespace TechnicalTest.Infrastructure.Events
             var version = stored.Count == 0 ? 0 : stored.Max(e => e.Version);
 
             return (events, version);
+        }
+
+        public async Task<IReadOnlyCollection<StoredEventEnvelope>> LoadAllAsync(
+            long afterId,
+            int take = 100,
+            CancellationToken cancellationToken = default)
+        {
+            var stored = await _db.StoredEvents
+                .Where(e => e.Id > afterId)
+                .OrderBy(e => e.Id)
+                .Take(take)
+                .ToListAsync(cancellationToken);
+
+            return [.. stored
+                .Select(e => new StoredEventEnvelope(
+                    e.Id,
+                    e.StreamId,
+                    e.Version,
+                    Deserialize(e.EventType, e.EventData),
+                    e.OccurredAt
+                ))];
         }
 
         private static IDomainEvent Deserialize(string type, string data)
@@ -79,25 +104,10 @@ namespace TechnicalTest.Infrastructure.Events
             };
         }
 
-        public async Task<IReadOnlyCollection<StoredEventEnvelope>> LoadAllAsync(
-                    long afterId,
-                    int take = 100,
-                    CancellationToken cancellationToken = default)
+        private static void EnsureValidStreamId(string streamId)
         {
-            var stored = await _db.StoredEvents
-                .Where(e => e.Id > afterId)
-                .OrderBy(e => e.Id)
-                .Take(take)
-                .ToListAsync(cancellationToken);
-
-            return [.. stored
-                .Select(e => new StoredEventEnvelope(
-                    e.Id,
-                    e.StreamId,
-                    e.Version,
-                    Deserialize(e.EventType, e.EventData),
-                    e.OccurredAt
-                ))];
+            if (string.IsNullOrWhiteSpace(streamId))
+                throw new ArgumentException("StreamId is required.", nameof(streamId));
         }
     }
 }

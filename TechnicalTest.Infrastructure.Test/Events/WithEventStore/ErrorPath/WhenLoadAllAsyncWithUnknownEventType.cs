@@ -25,6 +25,8 @@ namespace TechnicalTest.Infrastructure.Test.Events.WithEventStore.ErrorPath
                 .WithMessage("Unknown event type: WeirdEvent");
         }
 
+
+        #region Setup/Teardown
         public async Task InitializeAsync()
         {
             _dbContext.StoredEvents.Add(new StoredEvent
@@ -43,5 +45,6 @@ namespace TechnicalTest.Infrastructure.Test.Events.WithEventStore.ErrorPath
         {
             await _dbContext.DisposeAsync();
         }
+        #endregion
     }
 }

@@ -4,37 +4,38 @@ using TechnicalTest.TestHelpers.Database;
 
 namespace TechnicalTest.Infrastructure.Test.Events.WithEventStore.ErrorPath
 {
-    public sealed class WhenLoadAsyncWithUnknownStream : IAsyncLifetime
+    public class WhenLoadAsyncWithInvalidStreamId : IAsyncLifetime
     {
         private readonly AppDbContext _dbContext;
         private readonly EfEventStore _sut;
 
-        private readonly string _streamId;
-
-        public WhenLoadAsyncWithUnknownStream()
+        public WhenLoadAsyncWithInvalidStreamId()
         {
             _dbContext = new TestDbContextFactory().Context;
             _sut = new EfEventStore(_dbContext);
-
-            _streamId = Guid.NewGuid().ToString();
         }
 
         [Fact]
-        public async Task ThenMustReturnEmptyEventsAndVersionZero()
+        public async Task ThenMustThrowArgumentException_WhenStreamIdIsEmpty()
         {
-            var result = await _sut.LoadAsync(_streamId);
+            var act = async () => await _sut.LoadAsync(streamId: string.Empty);
 
-            result.Events.Should().BeEmpty();
-            result.Version.Should().Be(0);
+            await act.Should().ThrowAsync<ArgumentException>();
         }
 
-        #region Setup/Teardown
+        [Fact]
+        public async Task ThenMustThrowArgumentException_WhenStreamIdIsWhitespace()
+        {
+            var act = async () => await _sut.LoadAsync(streamId: " ");
+
+            await act.Should().ThrowAsync<ArgumentException>();
+        }
+
         public Task InitializeAsync() => Task.CompletedTask;
 
         public async Task DisposeAsync()
         {
             await _dbContext.DisposeAsync();
         }
-        #endregion
     }
 }
