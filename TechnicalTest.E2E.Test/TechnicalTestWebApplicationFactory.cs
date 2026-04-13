@@ -4,18 +4,23 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using TechnicalTest.Infrastructure;
 
 namespace TechnicalTest.E2E.Test
 {
-    public class TechnicalTestWebApplicationFactory : WebApplicationFactory<Program>
+    public class TechnicalTestWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
     {
-        private readonly SqliteConnection _connection;
+        private SqliteConnection _connection = null!;
 
-        public TechnicalTestWebApplicationFactory()
+        protected override IHost CreateHost(IHostBuilder builder)
         {
-            _connection = new SqliteConnection("DataSource=:memory:");
-            _connection.Open();
+            builder.ConfigureLogging(logging =>
+            {
+                logging.Services.RemoveAll<ILoggerProvider>();
+            });
+            return base.CreateHost(builder);
         }
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -32,21 +37,25 @@ namespace TechnicalTest.E2E.Test
             });
         }
 
-        public void InitializeDatabase()
+        public async Task InitializeAsync()
         {
-            using var scope = Services.CreateScope();
+            _connection = new SqliteConnection("DataSource=:memory:");
+            await _connection.OpenAsync();
+
+            await using var scope = Services.CreateAsyncScope();
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            db.Database.EnsureCreated();
+            await db.Database.EnsureCreatedAsync();
+        }
+
+        public new async Task DisposeAsync()
+        {
+            await _connection.CloseAsync();
+            await _connection.DisposeAsync();
+            await base.DisposeAsync();
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                _connection.Close();
-                _connection.Dispose();
-            }
-            base.Dispose(disposing);
         }
     }
 }

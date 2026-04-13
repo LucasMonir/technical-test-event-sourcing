@@ -16,62 +16,73 @@ namespace TechnicalTest.Infrastructure.Projections
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                using var scope = _scopeFactory.CreateScope();
-
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                var eventStore = scope.ServiceProvider.GetRequiredService<IEventStore>();
-
-                var checkpoint = await db.ProjectionCheckpoints
-                    .FirstOrDefaultAsync(x => x.Name == "PostProjection", stoppingToken);
-
-                if (checkpoint is null)
+                try
                 {
-                    checkpoint = new ProjectionCheckpoint
+                    using var scope = _scopeFactory.CreateScope();
+
+                    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    var eventStore = scope.ServiceProvider.GetRequiredService<IEventStore>();
+
+                    var checkpoint = await db.ProjectionCheckpoints
+                        .FirstOrDefaultAsync(x => x.Name == "PostProjection", stoppingToken);
+
+                    if (checkpoint is null)
                     {
-                        Name = "PostProjection",
-                        LastProcessedEventId = 0
-                    };
-
-                    db.ProjectionCheckpoints.Add(checkpoint);
-                    await db.SaveChangesAsync(stoppingToken);
-                }
-
-                var batch = await eventStore.LoadAllAsync(
-                    checkpoint.LastProcessedEventId,
-                    take: 100,
-                    stoppingToken
-                );
-
-                if (batch.Count == 0)
-                {
-                    await Task.Delay(500, stoppingToken);
-                    continue;
-                }
-
-                foreach (var envelope in batch)
-                {
-                    if (envelope.Event is PostCreatedEvent created)
-                    {
-                        var exists = await db.Posts
-                            .AnyAsync(x => x.Id == created.PostId, stoppingToken);
-
-                        if (!exists)
+                        checkpoint = new ProjectionCheckpoint
                         {
-                            db.Posts.Add(new PostReadModel
-                            {
-                                Id = created.PostId,
-                                AuthorId = created.AuthorId,
-                                Title = created.Title,
-                                Description = created.Description,
-                                Content = created.Content
-                            });
-                        }
+                            Name = "PostProjection",
+                            LastProcessedEventId = 0
+                        };
+
+                        db.ProjectionCheckpoints.Add(checkpoint);
+                        await db.SaveChangesAsync(stoppingToken);
                     }
 
-                    checkpoint.LastProcessedEventId = envelope.Id;
-                }
+                    var batch = await eventStore.LoadAllAsync(
+                        checkpoint.LastProcessedEventId,
+                        take: 100,
+                        stoppingToken
+                    );
 
-                await db.SaveChangesAsync(stoppingToken);
+                    if (batch.Count == 0)
+                    {
+                        await Task.Delay(500, stoppingToken);
+                        continue;
+                    }
+
+                    foreach (var envelope in batch)
+                    {
+                        if (envelope.Event is PostCreatedEvent created)
+                        {
+                            var exists = await db.Posts
+                                .AnyAsync(x => x.Id == created.PostId, stoppingToken);
+
+                            if (!exists)
+                            {
+                                db.Posts.Add(new PostReadModel
+                                {
+                                    Id = created.PostId,
+                                    AuthorId = created.AuthorId,
+                                    Title = created.Title,
+                                    Description = created.Description,
+                                    Content = created.Content
+                                });
+                            }
+                        }
+
+                        checkpoint.LastProcessedEventId = envelope.Id;
+                    }
+
+                    await db.SaveChangesAsync(stoppingToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (Exception ex) when (ex.InnerException is OperationCanceledException)
+                {
+                    break;
+                }
             }
         }
     }

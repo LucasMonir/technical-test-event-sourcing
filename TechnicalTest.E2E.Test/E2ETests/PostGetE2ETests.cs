@@ -9,6 +9,7 @@ using TechnicalTest.TestHelpers.Builders.Domain;
 
 namespace TechnicalTest.E2E.Test.E2ETests
 {
+    [Collection("E2E")]
     public class PostGetE2ETests : IClassFixture<TechnicalTestWebApplicationFactory>
     {
         private readonly HttpClient _client;
