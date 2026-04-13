@@ -1,14 +1,13 @@
 ﻿using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using TechnicalTest.Application.Abstractions.Events;
 using TechnicalTest.Domain.Events;
 using TechnicalTest.Infrastructure.Events;
 using TechnicalTest.TestHelpers.Builders.Application;
 using TechnicalTest.TestHelpers.Database;
 
-namespace TechnicalTest.Infrastructure.Test.Events.WithEventStore
+namespace TechnicalTest.Infrastructure.Test.Events.WithEventStore.HappyPath
 {
-    public class WhenAppendingAsync : IAsyncLifetime
+    public class WhenLoadAsync : IAsyncLifetime
     {
         private readonly AppDbContext _dbContext;
         private readonly IEventStore _sut;
@@ -17,7 +16,7 @@ namespace TechnicalTest.Infrastructure.Test.Events.WithEventStore
         private readonly int _expectedVersion;
         private readonly PostCreatedEvent _event;
 
-        public WhenAppendingAsync()
+        public WhenLoadAsync()
         {
             _streamId = Guid.NewGuid().ToString();
             _expectedVersion = 0;
@@ -25,30 +24,33 @@ namespace TechnicalTest.Infrastructure.Test.Events.WithEventStore
                 .Build();
 
             _dbContext = new TestDbContextFactory().Context;
-
             _sut = new EfEventStore(_dbContext);
         }
 
         [Fact]
         public async Task ThenMustSaveEvent()
         {
-            await _sut.AppendAsync(
-                _streamId,
-                _expectedVersion,
-                [_event]);
+            var result = await _sut.LoadAsync(_streamId);
 
-            var storedEvent = await _dbContext.StoredEvents
-                .FirstOrDefaultAsync(x => x.StreamId == _streamId);
+            result.Events.Should().HaveCount(1);
 
-            storedEvent.Should().NotBeNull();
+            var @event = result.Events.First();
 
-            storedEvent!.StreamId.Should().Be(_streamId);
-            storedEvent.Version.Should().Be(1);
-            storedEvent.EventType.Should().Be(typeof(PostCreatedEvent).Name);
+            var postCreated = @event.Should()
+                .BeOfType<PostCreatedEvent>().Subject;
+
+            postCreated.Should().BeEquivalentTo(_event, options =>
+                options.Excluding(x => x.EventId));
         }
 
         #region Setup/Teardown
-        public Task InitializeAsync() => Task.CompletedTask;
+        public async Task InitializeAsync()
+        {
+            await _sut.AppendAsync(
+               _streamId,
+               _expectedVersion,
+               [_event]);
+        }
 
         async Task IAsyncLifetime.DisposeAsync()
         {

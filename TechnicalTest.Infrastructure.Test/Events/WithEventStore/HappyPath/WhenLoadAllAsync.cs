@@ -4,7 +4,7 @@ using TechnicalTest.Infrastructure.Events;
 using TechnicalTest.TestHelpers.Builders.Application;
 using TechnicalTest.TestHelpers.Database;
 
-namespace TechnicalTest.Infrastructure.Test.Events.WithEventStore
+namespace TechnicalTest.Infrastructure.Test.Events.WithEventStore.HappyPath
 {
     public class WhenLoadAllAsync : IAsyncLifetime
     {
