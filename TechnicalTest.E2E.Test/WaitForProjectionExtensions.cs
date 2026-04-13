@@ -25,6 +25,10 @@ namespace TechnicalTest.E2E.Test
                 {
 
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
 
                 await Task.Delay(pollIntervalMs);
             }

@@ -4,7 +4,7 @@ namespace TechnicalTest.TestHelpers.Builders.Application
 {
     public class PostCreatedEventBuilder
     {
-        private readonly Guid _id;
+        private readonly Guid _postId;
         private readonly Guid _authorId;
         private readonly string _title;
         private readonly string _description;
@@ -15,7 +15,7 @@ namespace TechnicalTest.TestHelpers.Builders.Application
 
         private PostCreatedEventBuilder()
         {
-            _id = Guid.NewGuid();
+            _postId = Guid.NewGuid();
             _authorId = Guid.NewGuid();
             _title = "Test title";
             _description = "Test description";
@@ -24,7 +24,7 @@ namespace TechnicalTest.TestHelpers.Builders.Application
         }
 
         public PostCreatedEvent Build() => new(
-            _id,
+            _postId,
             _authorId,
             _title,
             _description,

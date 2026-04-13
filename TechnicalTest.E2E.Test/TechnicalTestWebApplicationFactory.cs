@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -12,7 +11,7 @@ namespace TechnicalTest.E2E.Test
 {
     public class TechnicalTestWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
     {
-        private SqliteConnection _connection = null!;
+        private readonly string _dbPath = Path.Combine(Path.GetTempPath(), $"test_{Guid.NewGuid()}.db");
 
         protected override IHost CreateHost(IHostBuilder builder)
         {
@@ -30,18 +29,12 @@ namespace TechnicalTest.E2E.Test
                 services.RemoveAll<DbContextOptions<AppDbContext>>();
 
                 services.AddDbContext<AppDbContext>(options =>
-                    options.UseSqlite(_connection, sqliteOptions =>
-                    {
-                        sqliteOptions.MaxBatchSize(1);
-                    }));
+                    options.UseSqlite($"DataSource={_dbPath}"));
             });
         }
 
         public async Task InitializeAsync()
         {
-            _connection = new SqliteConnection("DataSource=:memory:");
-            await _connection.OpenAsync();
-
             await using var scope = Services.CreateAsyncScope();
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             await db.Database.EnsureCreatedAsync();
@@ -49,13 +42,19 @@ namespace TechnicalTest.E2E.Test
 
         public new async Task DisposeAsync()
         {
-            await _connection.CloseAsync();
-            await _connection.DisposeAsync();
             await base.DisposeAsync();
+            if (File.Exists(_dbPath))
+                File.Delete(_dbPath);
         }
 
-        protected override void Dispose(bool disposing)
+        public async Task ResetDatabaseAsync()
         {
+            await using var scope = Services.CreateAsyncScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await db.Database.EnsureDeletedAsync();
+            await db.Database.EnsureCreatedAsync();
         }
+
+        protected override void Dispose(bool disposing) { }
     }
 }

@@ -46,7 +46,7 @@ namespace TechnicalTest.Application.Test.Services.WithPostQueryService.WhenGetPo
         [Fact]
         public async Task ThenMustReturnExpectedPost()
         {
-            var result = await _sut.GetPostAsync(_post.Id);
+            var result = await _sut.GetPostAsync(_post.Id, _includeAuthor);
 
             result.Should().BeEquivalentTo(_post, options => options
                 .ComparingByMembers<Post>()
