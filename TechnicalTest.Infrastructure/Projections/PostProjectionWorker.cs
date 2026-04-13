@@ -1,0 +1,78 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using TechnicalTest.Application.Abstractions.Events;
+using TechnicalTest.Domain.Events;
+using TechnicalTest.Domain.Models;
+using TechnicalTest.Infrastructure.Models;
+
+namespace TechnicalTest.Infrastructure.Projections
+{
+    public class PostProjectionWorker(IServiceScopeFactory scopeFactory) : BackgroundService
+    {
+        private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                using var scope = _scopeFactory.CreateScope();
+
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var eventStore = scope.ServiceProvider.GetRequiredService<IEventStore>();
+
+                var checkpoint = await db.ProjectionCheckpoints
+                    .FirstOrDefaultAsync(x => x.Name == "PostProjection", stoppingToken);
+
+                if (checkpoint is null)
+                {
+                    checkpoint = new ProjectionCheckpoint
+                    {
+                        Name = "PostProjection",
+                        LastProcessedEventId = 0
+                    };
+
+                    db.ProjectionCheckpoints.Add(checkpoint);
+                    await db.SaveChangesAsync(stoppingToken);
+                }
+
+                var batch = await eventStore.LoadAllAsync(
+                    checkpoint.LastProcessedEventId,
+                    take: 100,
+                    stoppingToken
+                );
+
+                if (batch.Count == 0)
+                {
+                    await Task.Delay(500, stoppingToken);
+                    continue;
+                }
+
+                foreach (var envelope in batch)
+                {
+                    if (envelope.Event is PostCreatedEvent created)
+                    {
+                        var exists = await db.Posts
+                            .AnyAsync(x => x.Id == created.PostId, stoppingToken);
+
+                        if (!exists)
+                        {
+                            db.Posts.Add(new PostReadModel
+                            {
+                                Id = created.PostId,
+                                AuthorId = created.AuthorId,
+                                Title = created.Title,
+                                Description = created.Description,
+                                Content = created.Content
+                            });
+                        }
+                    }
+
+                    checkpoint.LastProcessedEventId = envelope.Id;
+                }
+
+                await db.SaveChangesAsync(stoppingToken);
+            }
+        }
+    }
+}

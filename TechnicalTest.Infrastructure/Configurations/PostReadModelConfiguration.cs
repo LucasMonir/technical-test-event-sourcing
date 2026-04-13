@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TechnicalTest.Domain;
+using TechnicalTest.Domain.Models;
 
 namespace TechnicalTest.Infrastructure.Configurations
 {
-    internal class PostConfiguration : IEntityTypeConfiguration<Post>
+    internal class PostReadModelConfiguration : IEntityTypeConfiguration<Post>
     {
         public void Configure(EntityTypeBuilder<Post> builder)
         {

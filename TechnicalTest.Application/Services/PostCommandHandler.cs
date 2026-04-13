@@ -1,17 +1,13 @@
 ﻿using TechnicalTest.Application.Abstractions.Events;
-using TechnicalTest.Application.Abstractions.Persistence;
-using TechnicalTest.Application.Abstractions.Repositories;
 using TechnicalTest.Application.Abstractions.Services;
 using TechnicalTest.Application.Commands;
-using TechnicalTest.Domain;
-using TechnicalTest.Domain.Events;
+using TechnicalTest.Domain.Models;
 
 namespace TechnicalTest.Application.Services
 {
-    internal class PostCommandHandler(IPostRepository postRepository,
+    internal class PostCommandHandler(
         IAuthorResolver authorResolver,
-        IEventStore eventStore,
-        IUnitOfWork unitOfWork)
+        IEventStore eventStore)
         : IPostCommandHandler
     {
         private readonly IAuthorResolver _authorResolver = authorResolver;
@@ -20,23 +16,29 @@ namespace TechnicalTest.Application.Services
         public async Task<Guid> Handle(CreatePostCommand command)
         {
             Guid authorId = await _authorResolver.ResolveAsync(command);
+            Guid postId = Guid.NewGuid();
 
-            var post = Post.Create(
-                authorId,
-                command.Title,
-                command.Description,
-                command.Content
+            var streamId = $"post-{postId}";
+
+            var (history, version) = await _eventStore.LoadAsync(streamId);
+
+            var post = history is not null && history.Count != 0
+                ? Post.FromHistory(history)
+                : Post.Create(
+                    postId,
+                    authorId,
+                    command.Title,
+                    command.Description,
+                    command.Content
+                );
+
+            await _eventStore.AppendAsync(
+                streamId,
+                version,
+                post.Events
             );
 
-            var postCreated = new PostCreatedEvent(
-                post.Id,
-                post.AuthorId,
-                post.Title,
-                post.Description,
-                post.Content,
-                DateTimeOffset.UtcNow);
-
-            await _eventStore.AppendAsync($"post-{post.Id}", expectedVersion: 0, [postCreated]);
+            post.ClearEvents();
 
             return post.Id;
         }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TechnicalTest.Application.Abstractions.Repositories;
-using TechnicalTest.Domain;
+using TechnicalTest.Application.DTOs;
 
 namespace TechnicalTest.Infrastructure.Repositories
 {
@@ -8,16 +8,40 @@ namespace TechnicalTest.Infrastructure.Repositories
     {
         private readonly AppDbContext _dbContext = dbContext;
 
-        public async Task<Post?> GetPostAsync(Guid id)
+        public async Task<PostDto?> GetPostAsync(Guid id,
+            bool includeAuthor,
+            CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Posts.FirstOrDefaultAsync(p => p.Id == id);
-        }
+            var post = await _dbContext.Posts
+                   .AsNoTracking()
+                   .Where(p => p.Id == id)
+                   .Select(p => new PostDto(
+                       p.Id,
+                       p.AuthorId,
+                       p.Title,
+                       p.Description,
+                       p.Content,
+                       null
+                   ))
+                   .FirstOrDefaultAsync(cancellationToken);
 
-        public async Task<Guid> CreatePostAsync(Post post)
-        {
-            var entry = await _dbContext.Posts.AddAsync(post);
+            if (post is null)
+                return null;
 
-            return entry.Entity.Id;
+            if (!includeAuthor)
+                return post;
+
+            var author = await _dbContext.Authors
+                .AsNoTracking()
+                .Where(a => a.Id == post.AuthorId)
+                .Select(a => new AuthorDto(
+                    a.Id,
+                    a.Name,
+                    a.Surname
+                ))
+                .FirstOrDefaultAsync(cancellationToken);
+
+            return post with { Author = author };
         }
     }
 }

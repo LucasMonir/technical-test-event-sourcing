@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using NSubstitute;
 using TechnicalTest.Application.Abstractions.Repositories;
+using TechnicalTest.Application.DTOs;
 using TechnicalTest.Application.Services;
 
 namespace TechnicalTest.Application.Test.Services.WithPostQueryService.WhenGetPostAsync
@@ -8,18 +9,15 @@ namespace TechnicalTest.Application.Test.Services.WithPostQueryService.WhenGetPo
     public class WithNonExistingPost
     {
         private readonly IPostRepository _postRepository;
-        private readonly IAuthorRepository _authorRepository;
         private readonly PostQueryService _sut;
 
         public WithNonExistingPost()
         {
             _postRepository = Substitute.For<IPostRepository>();
-            _authorRepository = Substitute.For<IAuthorRepository>();
-            _postRepository.GetPostAsync(Arg.Any<Guid>())
-                .Returns((Domain.Post?)null);
+            _postRepository.GetPostAsync(Arg.Any<Guid>(), false)
+                .Returns((PostDto?)null);
 
-            _sut = new PostQueryService(_postRepository,
-                _authorRepository);
+            _sut = new PostQueryService(_postRepository);
         }
 
         [Fact]

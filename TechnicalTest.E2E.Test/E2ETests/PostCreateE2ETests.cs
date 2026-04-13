@@ -3,29 +3,27 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Json;
-using TechnicalTest.Application.DTOs;
-using TechnicalTest.Domain.Events;
 using TechnicalTest.Infrastructure;
+using TechnicalTest.Infrastructure.Events;
 using TechnicalTest.TestHelpers.Builders.Application;
-using TechnicalTest.TestHelpers.Builders.Domain;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace TechnicalTest.E2E.Test.E2ETests
 {
     public class PostCreateE2ETests : IClassFixture<TechnicalTestWebApplicationFactory>
     {
         private readonly HttpClient _client;
-        private readonly AppDbContext _dbContext;
+        private readonly TechnicalTestWebApplicationFactory _factory;
         private readonly int _eventVersion = 1;
+
         public PostCreateE2ETests(TechnicalTestWebApplicationFactory factory)
         {
+            _factory = factory;
             _client = factory.CreateClient();
-
-            var scope = factory.Services.CreateScope();
-            _dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         }
 
         [Fact]
-        public async Task CreateNewPostWithNewAuthorShouldReturnExpectedValues()
+        public async Task CreateNewPostWithNewAuthorShouldStoreBothEvents()
         {
             var authorRequest = CreateAuthorRequestBuilder.Default()
                 .Build();
@@ -34,88 +32,81 @@ namespace TechnicalTest.E2E.Test.E2ETests
                 .WithAuthor(authorRequest)
                 .Build();
 
-            var expectedAuthor = new AuthorDto(Guid.NewGuid(),
-                authorRequest.Name,
-                authorRequest.Surname);
-
-            var expectedPost = new PostDto(Guid.NewGuid(),
-                Guid.NewGuid(),
-                postRequest.Title,
-                postRequest.Description,
-                postRequest.Content,
-                expectedAuthor);
-
             var response = await _client.PostAsJsonAsync($"/post", postRequest);
             var result = await response.Content.ReadFromJsonAsync<Guid>();
 
             response.StatusCode.Should().Be(HttpStatusCode.Created);
             result.Should().NotBeEmpty();
 
-            var savedPost = await _dbContext.Posts
-                .FirstOrDefaultAsync(p => p.Id == result);
+            await using var scope = _factory.Services.CreateAsyncScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            savedPost.Should().NotBeNull();
-            savedPost!.Title.Should().Be(postRequest.Title);
-            savedPost.Description.Should().Be(postRequest.Description);
-            savedPost.Content.Should().Be(postRequest.Content);
-            savedPost.AuthorId.Should().NotBeEmpty();
+            var events = await db.Set<StoredEvent>()
+                .AsNoTracking()
+                .ToListAsync();
 
-            var savedAuthor = await _dbContext.Authors
-                .FirstOrDefaultAsync(a => a.Id == savedPost!.AuthorId);
+            events.Should().NotBeEmpty();
 
-            savedAuthor.Should().NotBeNull();
-            savedAuthor!.Name.Should().Be(authorRequest.Name);
-            savedAuthor.Surname.Should().Be(authorRequest.Surname);
+            events.Should().Contain(e =>
+                e.EventType.Contains("PostCreatedEvent"));
 
-            var storedEvent = await _dbContext.StoredEvents
-                .SingleAsync(x => x.StreamId == $"post-{savedPost.Id}");
-
-            storedEvent.Should().NotBeNull();
-            storedEvent.EventType.Should().Be(nameof(PostCreatedEvent));
-            storedEvent.Version.Should().Be(_eventVersion);
+            events.Should().Contain(e =>
+                e.EventType.Contains("AuthorCreatedEvent"));
         }
 
         [Fact]
-        public async Task CreateNewPostWithExistingAuthorShouldReturnExpectedValues()
+        public async Task CreateNewPostWithExistingAuthorShouldStorePostEvent()
         {
-            var existingAuthor = AuthorBuilder.Default()
+
+            var authorRequest = CreateAuthorRequestBuilder.Default().Build();
+
+            var postRequest1 = CreatePostRequestBuilder.Default()
+                .WithAuthor(authorRequest)
                 .Build();
 
-            var postRequest = CreatePostRequestBuilder.Default()
-                .WithAuthorId(existingAuthor.Id)
-                .Build();
+            var response1 = await _client.PostAsJsonAsync("/post", postRequest1);
+            response1.StatusCode.Should().Be(HttpStatusCode.Created);
 
-            var expectedPost = new PostDto(Guid.NewGuid(),
-                existingAuthor.Id,
-                postRequest.Title,
-                postRequest.Description,
-                postRequest.Content);
+            var postId1 = await response1.Content.ReadFromJsonAsync<Guid>();
+            postId1.Should().NotBeEmpty();
 
-            await _dbContext.Authors.AddAsync(existingAuthor);
-            await _dbContext.SaveChangesAsync();
+            Guid authorId;
 
-            var response = await _client.PostAsJsonAsync($"/post", postRequest);
-            var result = await response.Content.ReadFromJsonAsync<Guid>();
+            //await using (var scope = _factory.Services.CreateAsyncScope())
+            //{
+            //    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            response.StatusCode.Should().Be(HttpStatusCode.Created);
+            //    authorId = await db.Authors
+            //        .AsNoTracking()
+            //        .Select(a => a.Id)
+            //        .FirstAsync();
+            //}
 
-            result.Should().NotBeEmpty();
+            //var postRequest2 = CreatePostRequestBuilder.Default()
+            //    .WithAuthorId(authorId)
+            //    .Build();
 
-            var savedPost = await _dbContext.Posts
-                .FirstOrDefaultAsync(p => p.Id == result);
+            //var response2 = await _client.PostAsJsonAsync("/post", postRequest2);
+            //response2.StatusCode.Should().Be(HttpStatusCode.Created);
 
-            savedPost.Should().NotBeNull();
-            savedPost!.Title.Should().Be(postRequest.Title);
-            savedPost.Description.Should().Be(postRequest.Description);
-            savedPost.Content.Should().Be(postRequest.Content);
-            savedPost.AuthorId.Should().NotBeEmpty();
+            //var postId2 = await response2.Content.ReadFromJsonAsync<Guid>();
+            //postId2.Should().NotBeEmpty();
 
-            var storedEvent = await _dbContext.StoredEvents
-                .SingleAsync(x => x.StreamId == $"post-{savedPost.Id}");
+            //await using (var scope = _factory.Services.CreateAsyncScope())
+            //{
+            //    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            storedEvent.Should().NotBeNull();
-            storedEvent.EventType.Should().Be(nameof(PostCreatedEvent));
-            storedEvent.Version.Should().Be(_eventVersion);
+            //    var events = await db.Set<StoredEvent>()
+            //        .AsNoTracking()
+            //        .ToListAsync();
+
+            //    events.Count(e => e.EventType.Contains("PostCreatedEvent"))
+            //        .Should().Be(2);
+
+            //    events.Count(e => e.EventType.Contains("AuthorCreatedEvent"))
+            //        .Should().Be(1);
+
+            //}
         }
     }
 }

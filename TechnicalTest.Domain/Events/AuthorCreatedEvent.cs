@@ -2,12 +2,10 @@
 
 namespace TechnicalTest.Domain.Events
 {
-    public record PostCreatedEvent(
-        Guid PostId,
+    public record AuthorCreatedEvent(
         Guid AuthorId,
-        string Title,
-        string Description,
-        string Content,
+        string Name,
+        string Surname,
         DateTimeOffset OccurredOn
     ) : IDomainEvent
     {

@@ -1,8 +1,9 @@
 ﻿using FluentAssertions;
 using NSubstitute;
 using TechnicalTest.Application.Abstractions.Repositories;
+using TechnicalTest.Application.DTOs;
 using TechnicalTest.Application.Services;
-using TechnicalTest.Domain;
+using TechnicalTest.Domain.Models;
 using TechnicalTest.TestHelpers.Builders.Domain;
 
 namespace TechnicalTest.Application.Test.Services.WithPostQueryService.WhenGetPostAsync
@@ -10,10 +11,10 @@ namespace TechnicalTest.Application.Test.Services.WithPostQueryService.WhenGetPo
     public class WithExistingPost
     {
         private readonly IPostRepository _postRepository;
-        private readonly IAuthorRepository _authorRepository;
         private readonly PostQueryService _sut;
         private readonly Post _post;
         private readonly Author _author;
+        private readonly bool _includeAuthor;
 
         public WithExistingPost()
         {
@@ -24,16 +25,22 @@ namespace TechnicalTest.Application.Test.Services.WithPostQueryService.WhenGetPo
                 .WithAutorId(_author.Id)
                 .Build();
 
-            _authorRepository = Substitute.For<IAuthorRepository>();
-            _authorRepository.GetPostAuthorAsync(_post.AuthorId)
-                .Returns(_author);
+            _includeAuthor = true;
+
+            PostDto postDto = new(_post.Id,
+                _post.AuthorId,
+                _post.Title,
+                _post.Description,
+                _post.Content,
+                new AuthorDto(_author.Id,
+                _author.Name,
+                _author.Surname));
 
             _postRepository = Substitute.For<IPostRepository>();
-            _postRepository.GetPostAsync(_post.Id)
-                .Returns(_post);
+            _postRepository.GetPostAsync(_post.Id, _includeAuthor)
+                .Returns(postDto);
 
-            _sut = new PostQueryService(_postRepository,
-                _authorRepository);
+            _sut = new PostQueryService(_postRepository);
         }
 
         [Fact]
@@ -50,10 +57,14 @@ namespace TechnicalTest.Application.Test.Services.WithPostQueryService.WhenGetPo
         [Fact]
         public async Task ThenMustReturnExpectedPostWithAuthorWhenIncluded()
         {
-            var result = await _sut.GetPostAsync(_post.Id, includeAuthor: true);
+            var result = await _sut.GetPostAsync(_post.Id, _includeAuthor);
 
             result.Should().NotBeNull();
-            result.Author.Should().BeEquivalentTo(_author);
+
+            result.Author.Should().BeEquivalentTo(_author, options => options
+                .ComparingByMembers<Author>()
+                .ExcludingMissingMembers()
+                );
         }
     }
 }

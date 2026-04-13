@@ -1,4 +1,4 @@
-﻿using TechnicalTest.Domain;
+﻿using TechnicalTest.Domain.Models;
 
 namespace TechnicalTest.TestHelpers.Builders.Domain
 {
@@ -17,11 +17,10 @@ namespace TechnicalTest.TestHelpers.Builders.Domain
             _surname = "Test surname";
         }
 
-        public Author Build() => new()
-        {
-            Id = _id,
-            Name = _name,
-            Surname = _surname
-        };
+        public Author Build() => Author.Create(
+            _id,
+            _name,
+            _surname
+        );
     }
 }

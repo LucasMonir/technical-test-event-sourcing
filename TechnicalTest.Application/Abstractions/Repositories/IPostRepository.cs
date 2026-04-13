@@ -1,10 +1,9 @@
-﻿using TechnicalTest.Domain;
+﻿using TechnicalTest.Application.DTOs;
 
 namespace TechnicalTest.Application.Abstractions.Repositories
 {
     public interface IPostRepository
     {
-        Task<Post?> GetPostAsync(Guid id);
-        Task<Guid> CreatePostAsync(Post post);
+        Task<PostDto?> GetPostAsync(Guid id, bool includeAuthor, CancellationToken cancellationToken = default);
     }
 }

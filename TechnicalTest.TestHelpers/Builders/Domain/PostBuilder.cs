@@ -1,4 +1,4 @@
-﻿using TechnicalTest.Domain;
+﻿using TechnicalTest.Domain.Models;
 
 namespace TechnicalTest.TestHelpers.Builders.Domain
 {
@@ -27,13 +27,15 @@ namespace TechnicalTest.TestHelpers.Builders.Domain
             return this;
         }
 
-        public Post Build() => new()
+        public Post Build()
         {
-            Id = _id,
-            AuthorId = authorId,
-            Title = _title,
-            Description = _description,
-            Content = _content
-        };
+            return Post.Create(
+                _id,
+                authorId,
+                _title,
+                _description,
+                _content
+            );
+        }
     }
 }

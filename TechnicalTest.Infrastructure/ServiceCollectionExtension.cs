@@ -1,11 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TechnicalTest.Application.Abstractions.Events;
-using TechnicalTest.Application.Abstractions.Persistence;
 using TechnicalTest.Application.Abstractions.Repositories;
 using TechnicalTest.Infrastructure.Events;
+using TechnicalTest.Infrastructure.Projections;
 using TechnicalTest.Infrastructure.Repositories;
-using TechnicalTest.Infrastructure.Services;
 
 namespace TechnicalTest.Infrastructure
 {
@@ -13,17 +12,15 @@ namespace TechnicalTest.Infrastructure
     {
         public static IServiceCollection AddInfrastructurePersistence(this IServiceCollection services, string connectionString)
         {
-            return services.AddRepositories()
+            return services
                 .AddDbContext(connectionString)
+                .AddRepositories()
                 .AddEventStore()
-                .AddUnitOfWork();
+                .AddProjectionWorker();
         }
-
         private static IServiceCollection AddRepositories(this IServiceCollection services)
         {
-            return services.AddScoped<IPostRepository, PostRepository>()
-                .AddScoped<IAuthorRepository, _sut>();
-
+            return services.AddScoped<IPostRepository, PostRepository>();
         }
 
         private static IServiceCollection AddDbContext(this IServiceCollection services, string connectionString)
@@ -37,9 +34,10 @@ namespace TechnicalTest.Infrastructure
             return services.AddScoped<IEventStore, EfEventStore>();
         }
 
-        private static IServiceCollection AddUnitOfWork(this IServiceCollection services)
+        private static IServiceCollection AddProjectionWorker(this IServiceCollection services)
         {
-            return services.AddScoped<IUnitOfWork, UnitOfWork>();
+            return services.AddHostedService<PostProjectionWorker>()
+                .AddHostedService<AuthorProjectionWorker>();
         }
     }
 }

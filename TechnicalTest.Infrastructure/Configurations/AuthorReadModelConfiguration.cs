@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TechnicalTest.Domain;
+using TechnicalTest.Domain.Models;
 
 namespace TechnicalTest.Infrastructure.Configurations
 {
-    internal class AuthorConfiguration : IEntityTypeConfiguration<Author>
+    internal class AuthorReadModelConfiguration : IEntityTypeConfiguration<Author>
     {
         public void Configure(EntityTypeBuilder<Author> builder)
         {
