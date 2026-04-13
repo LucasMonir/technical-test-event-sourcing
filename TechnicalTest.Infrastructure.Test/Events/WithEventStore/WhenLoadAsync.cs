@@ -43,7 +43,7 @@ namespace TechnicalTest.Infrastructure.Test.Events.WithEventStore
                 options.Excluding(x => x.EventId));
         }
 
-        #region Setup and Teardown
+        #region Setup/Teardown
         public async Task InitializeAsync()
         {
             await _sut.AppendAsync(
@@ -51,6 +51,7 @@ namespace TechnicalTest.Infrastructure.Test.Events.WithEventStore
                _expectedVersion,
                [_event]);
         }
+
         async Task IAsyncLifetime.DisposeAsync()
         {
             await _dbContext.DisposeAsync();

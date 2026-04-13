@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Json;
 
-namespace TechnicalTest.E2E.Test
+namespace TechnicalTest.E2E.Test.E2EEnvironment
 {
     public static class WaitForProjectionExtensions
     {

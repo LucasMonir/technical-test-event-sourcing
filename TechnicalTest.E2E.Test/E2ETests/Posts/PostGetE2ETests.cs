@@ -2,9 +2,10 @@
 using System.Net;
 using System.Net.Http.Json;
 using TechnicalTest.Application.DTOs;
+using TechnicalTest.E2E.Test.E2EEnvironment;
 using TechnicalTest.TestHelpers.Builders.Application;
 
-namespace TechnicalTest.E2E.Test.E2ETests
+namespace TechnicalTest.E2E.Test.E2ETests.Posts
 {
     [Collection("E2E")]
     public class PostGetE2ETests : IAsyncLifetime

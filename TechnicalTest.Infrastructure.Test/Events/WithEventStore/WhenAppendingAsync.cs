@@ -11,7 +11,7 @@ namespace TechnicalTest.Infrastructure.Test.Events.WithEventStore
     public class WhenAppendingAsync : IAsyncLifetime
     {
         private readonly AppDbContext _dbContext;
-        private readonly IEventStore _eventStore;
+        private readonly IEventStore _sut;
 
         private readonly string _streamId;
         private readonly int _expectedVersion;
@@ -26,13 +26,13 @@ namespace TechnicalTest.Infrastructure.Test.Events.WithEventStore
 
             _dbContext = new TestDbContextFactory().Context;
 
-            _eventStore = new EfEventStore(_dbContext);
+            _sut = new EfEventStore(_dbContext);
         }
 
         [Fact]
         public async Task ThenMustSaveEvent()
         {
-            await _eventStore.AppendAsync(
+            await _sut.AppendAsync(
                 _streamId,
                 _expectedVersion,
                 [_event]);
@@ -46,8 +46,10 @@ namespace TechnicalTest.Infrastructure.Test.Events.WithEventStore
             storedEvent.Version.Should().Be(1);
             storedEvent.EventType.Should().Be(typeof(PostCreatedEvent).Name);
         }
-        #region Setup and Teardown
+
+        #region Setup/Teardown
         public Task InitializeAsync() => Task.CompletedTask;
+
         async Task IAsyncLifetime.DisposeAsync()
         {
             await _dbContext.DisposeAsync();

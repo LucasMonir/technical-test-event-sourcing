@@ -7,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TechnicalTest.Infrastructure;
 
-namespace TechnicalTest.E2E.Test
+namespace TechnicalTest.E2E.Test.E2EEnvironment
 {
     public class TechnicalTestWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
     {
