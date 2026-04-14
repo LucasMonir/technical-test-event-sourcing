@@ -52,3 +52,7 @@
 ### Other info:
 > This version of the application uses a CQRS + Repository pattern architecture with event sourcing using projection from events to present data
 > The event sourcing implementation was custom made
+
+### Pending improvements:
+> ProjectionWorkers should be a generic handler to avoid concurrency in the projections
+> Logging with Log4Net or Serilog must be added
