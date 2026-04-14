@@ -1,6 +1,6 @@
 # TechnicalTest - Fake Blog Api
 - A small CQRS/Hexagonal architecture project + This version is my attempt at EventSourcing!
-- Alternatively: There is repository with a "Database as Source of Truth" version as well -- <a href="https://github.com/LucasMonir/Technical-test-no-event-sourcing"-here</a-.
+- Alternatively: There is repository with a "Database as Source of Truth" version as well -> <a href="https://github.com/LucasMonir/Technical-test-no-event-sourcing">here</a>.
 
 ## Requirements:
 - .NET SDK 10.0.X
@@ -29,8 +29,8 @@
 
 - post requests on https://localhost:{port}/post with json body
 	Info: Currently due to the simple structure of the app, there are 2 possibilities of creation which I have decided to do:
-	1 - With a new author; sending the Name/Surname of the author will create a new user in the database
-	2 - With existing author: sending only the authorId will look for existing authors in the database!
+	* 1 - With a new author; sending the Name/Surname of the author will create a new user in the database
+	* 2 - With existing author: sending only the authorId will look for existing authors in the database!
 
 ## Building image and running as a docker container 
 - To run the published application, use the command `docker-compose up --build` in the solution's root folder
