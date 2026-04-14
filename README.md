@@ -53,6 +53,10 @@
 > This version of the application uses a CQRS + Repository pattern architecture with event sourcing using projection from events to present data
 > The event sourcing implementation was custom made
 
-### Pending improvements:
+### Pending improvements - Important notes:
 > ProjectionWorkers should be a generic handler to avoid concurrency in the projections
 > Logging with Log4Net or Serilog must be added
+> Db polling shall be switched to push model or using event queues or applying Lazy Projections, constant hits to database are a waste of 
+ computing even in small scale apps, and the current implementation is just for demonstration purposes, at the moment the choice made was to have 
+ the background workers polling and projecting events beforehand to speed up GETS. Not a wise choice for a real production app.
+> Upgrading this system to use RabbitMq or Confluent with protobuf would be my choice in a refactor.
